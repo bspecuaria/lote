@@ -237,11 +237,12 @@ const PR0={cats:[{cu:6000,venda:320,bp:16},{cu:12.65,venda:340},{cu:12.65,venda:
 const DEF={v:1,at:0,exemplo:true,praca:'GO',dietas:['Recria sem volumoso','Recria com volumoso','Terminação','Vaca parida'],cats:CATS0,
   pracas:{GO:PR0,SP:Object.assign(JSON.parse(JSON.stringify(PR0)),{base:0})},fixo:2,mm:.03,
   loteCfg:{leilao:{com:.02,frete:60},direto:{com:0,frete:60}},fut:{preco:0,custo:1.5,desc:[30,0,0,0,0,0,15,30]}};
+const EMB={"v": 1, "at": 1794658895249, "praca": "GO", "dietas": ["Recria sem volumoso", "Recria com volumoso", "Terminação", "Vaca parida"], "cats": [{"n": "Vaca parida + bezerro", "d": 3, "un": "cab", "cons": 0.023, "p0": 390, "pf": 510, "gmd": 1.1, "re": 0.5, "rs": 0.5, "mort": 0.005, "bez": {"p0": 80, "gmd": 1, "cons": 1.5}}, {"n": "Recria macho c/ volumoso", "d": 1, "un": "kg", "cons": 0.025, "p0": 200, "pf": 360, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria macho s/ volumoso", "d": 0, "un": "kg", "cons": 0.018, "p0": 200, "pf": 360, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria fêmea c/ volumoso", "d": 1, "un": "kg", "cons": 0.025, "p0": 180, "pf": 300, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria fêmea s/ volumoso", "d": 0, "un": "kg", "cons": 0.018, "p0": 180, "pf": 300, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Boi", "d": 2, "un": "arroba", "cons": 0.023, "p0": 400, "pf": 570, "gmd": 1.6, "re": 0.5, "rs": 0.54, "mort": 0.005}, {"n": "Novilha", "d": 2, "un": "arroba", "cons": 0.023, "p0": 320, "pf": 430, "gmd": 1.35, "re": 0.5, "rs": 0.51, "mort": 0.005}, {"n": "Vaca solteira", "d": 2, "un": "arroba", "cons": 0.023, "p0": 400, "pf": 510, "gmd": 1.2, "re": 0.5, "rs": 0.5, "mort": 0.005}], "pracas": {"GO": {"cats": [{"cu": 6000, "venda": 370, "bp": 16}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 440, "venda": 385, "bp": null}, {"cu": 390, "venda": 390, "bp": null}, {"cu": 350, "venda": 370, "bp": null}], "dcost": [1.36, 1.2, 1.2, 1.2], "base": 10}, "SP": {"cats": [{"cu": 6200, "venda": 370, "bp": 16}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 450, "venda": 380, "bp": null}, {"cu": 400, "venda": 380, "bp": null}, {"cu": 350, "venda": 360, "bp": null}], "dcost": [1.45, 1.25, 1.34, 1.34], "base": 0}}, "fixo": 2, "mm": 0.02, "loteCfg": {"leilao": {"com": 0.02, "frete": 60}, "direto": {"com": 0, "frete": 60}}, "fut": {"preco": 402, "custo": 5, "desc": [30, 0, 0, 0, 0, 0, 15, 30]}, "exemplo": false}; // seus números, gravados no arquivo
 const KEY='lote-offline-v1', clone=o=>JSON.parse(JSON.stringify(o)), isN=x=>typeof x==='number'&&isFinite(x);
 let D, L;
 function valid(o){return o&&o.v===1&&Array.isArray(o.cats)&&o.cats.length===8&&o.pracas&&o.pracas.GO&&o.pracas.SP&&Array.isArray(o.pracas.GO.cats)}
 try{const o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o&&valid(o.D)){D=o.D;L=o.L}}catch(e){}
-if(!D)D=clone(DEF);
+if(!D||(EMB&&EMB.at>(D.at||0))){D=clone(EMB||DEF); if(L)L.p0=null}
 if(!L)L={k:5,onde:'leilao',modo:'app',qt:1};
 function save(){try{localStorage.setItem(KEY,JSON.stringify({D,L}))}catch(e){}}
 
@@ -361,10 +362,10 @@ function ajBuild(){
     <h3>Atualizar com os dados do app</h3>
     <p class="hint">No app principal, em <b>Lote</b>, toque em “Levar para o Lote offline” e copie o código. Depois cole aqui e toque em “Atualizar”.</p>
     <textarea class="n" id="impTxt" rows="3" placeholder="Cole o código aqui" style="background:var(--card);border-color:var(--line);font-size:14px"></textarea>
-    <div class="btns"><button class="pri" id="impOk">Atualizar</button></div><p class="msg" id="impMsg"></p>`;
+    <div class="btns"><button id="impPaste">Colar</button><button class="pri" id="impOk">Atualizar</button></div><p class="msg" id="impMsg"></p>`;
 }
 function importar(txt){
-  txt=String(txt||'').trim(); const m=txt.match(/LOTE1:([A-Za-z0-9+/=_-]+)/); if(!m)return 'Código não reconhecido. Copie de novo no app.';
+  const raw=String(txt||''); txt=raw.replace(/\s+/g,''); const m=txt.match(/LOTE1:([A-Za-z0-9+/=_-]+)/); if(!m)return raw.trim()?`Código não reconhecido. O que foi colado começa com “${esc(raw.trim().slice(0,25))}…” (${raw.trim().length} caracteres). Copie de novo no app — o código começa com LOTE1:`:'A caixa está vazia. Cole o código copiado no app.';
   try{const b=m[1].replace(/-/g,'+').replace(/_/g,'/'); const json=decodeURIComponent(escape(atob(b))); const o=JSON.parse(json);
     if(!valid(o))return 'Código incompleto. Copie de novo no app.'; o.exemplo=false; D=o; fill(L.k); save(); build(); return ''}catch(e){return 'Não consegui ler o código. Copie de novo no app.'}
 }
@@ -391,8 +392,9 @@ document.addEventListener('click',e=>{const t=e.target;
   const mb=t.closest('#ltModo button'); if(mb){L.modo=mb.dataset.v; save(); build(); return}
   if(t.id==='ltCfEdit'){cfEdit=true; cfRender(); return}
   if(t.id==='ltCfOk'){cfEdit=false; cfRender(); calc(); return}
+  if(t.id==='impPaste'){(navigator.clipboard&&navigator.clipboard.readText?navigator.clipboard.readText():Promise.reject()).then(x=>{document.getElementById('impTxt').value=x;document.getElementById('impOk').click()}).catch(()=>{const el=document.getElementById('impMsg'); el.textContent='Toque na caixa, segure e escolha “Colar”.'; el.className='msg bad'}); return}
   if(t.id==='impOk'){const m=importar(document.getElementById('impTxt').value); const el=document.getElementById('impMsg');
-    if(m){el.textContent=m; el.className='msg bad'} else {const e2=document.getElementById('impMsg'); if(e2){e2.textContent='Atualizado!'; e2.className='msg good'} document.getElementById('dadosInfo').scrollIntoView()}}
+    if(m){el.innerHTML=m; el.className='msg bad'} else {const e2=document.getElementById('impMsg'); if(e2){e2.textContent='Atualizado!'; e2.className='msg good'} document.getElementById('dadosInfo').scrollIntoView()}}
 });
 build();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
