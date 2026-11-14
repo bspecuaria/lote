@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lote offline</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lote">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1f4d36">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{
+  --bg:#f4f1ea; --card:#ffffff; --ink:#1d2a22; --ink2:#5b6a60; --line:#e2ddd2;
+  --brand:#1f4d36; --brand2:#2e6b4c; --brandInk:#ffffff;
+  --inp:#fff6c9; --inpLine:#e5cf63; --good:#1c7a45; --goodBg:#e3f2e8; --bad:#b3261e; --badBg:#fbe7e5;
+  --chip:#e9e4d8; --hero:#e3f0e7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121614; --card:#1b211e; --ink:#e8ede9; --ink2:#9aa8a0; --line:#2c3530;
+    --brand:#2f6e4e; --brand2:#3d8a62; --brandInk:#ffffff;
+    --inp:#3a3418; --inpLine:#7d6b25; --good:#5fd08f; --goodBg:#183a27; --bad:#ff8a80; --badBg:#3d1d1b;
+    --chip:#252d29; --hero:#18301f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121614; --card:#1b211e; --ink:#e8ede9; --ink2:#9aa8a0; --line:#2c3530;
+  --brand:#2f6e4e; --brand2:#3d8a62; --brandInk:#ffffff;
+  --inp:#3a3418; --inpLine:#7d6b25; --good:#5fd08f; --goodBg:#183a27; --bad:#ff8a80; --badBg:#3d1d1b;
+  --chip:#252d29; --hero:#18301f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.35;-webkit-text-size-adjust:100%}
+body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+.wrap{max-width:720px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+header.top{background:var(--brand);color:var(--brandInk);padding:calc(14px + env(safe-area-inset-top)) 0 14px}
+header.top h1{margin:0;font-size:20px;letter-spacing:.2px}
+header.top p{margin:2px 0 0;font-size:13px;opacity:.85}
+h2{font-size:18px;margin:18px 0 8px}
+h3{font-size:15px;margin:14px 0 6px;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.hint{font-size:13px;color:var(--ink2);margin:6px 0}
+.hero{background:var(--hero);border-color:transparent}
+.hero .big{font-size:21px;font-weight:700;line-height:1.25;margin:4px 0 10px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
+.kv:first-child{border-top:0}
+.kv span:first-child{color:var(--ink2)}
+.kv b{text-align:right;white-space:nowrap}
+.kv.strong span:first-child{color:var(--ink);font-weight:600}
+.kv.strong b{font-size:18px}
+.good{color:var(--good)} .bad{color:var(--bad)}
+.tagg{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--goodBg);color:var(--good)}
+.tagb{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--badBg);color:var(--bad)}
+label.f{display:block;margin:8px 0}
+label.f>span{display:block;font-size:13px;color:var(--ink2);margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+input.n,select.n{width:100%;font-size:17px;padding:10px 11px;border-radius:10px;border:1.5px solid var(--inpLine);background:var(--inp);color:var(--ink);font-family:inherit;appearance:none;-webkit-appearance:none}
+select.n{background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:30px}
+input.n:focus,select.n:focus{outline:2px solid var(--brand2);outline-offset:1px}
+.inwrap{position:relative}
+.inwrap i{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--ink2);font-size:14px;pointer-events:none}
+.inwrap input{padding-right:46px}
+.big-in input.n{font-size:24px;font-weight:700;padding:14px}
+.seg{display:flex;background:var(--chip);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font-size:15px;font-weight:600;padding:10px;border-radius:9px;font-family:inherit}
+.seg button.on{background:var(--brand);color:var(--brandInk)}
+.sub{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.sub::-webkit-scrollbar{display:none}
+.sub button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:600;padding:9px 13px;border-radius:99px;font-family:inherit}
+.sub button.on{background:var(--brand);border-color:var(--brand);color:var(--brandInk)}
+details.it{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0;overflow:hidden}
+details.it>summary{list-style:none;padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer}
+details.it>summary::-webkit-details-marker{display:none}
+details.it>summary .nm{font-weight:700;flex:1}
+details.it>summary .sm{font-size:13px;color:var(--ink2);text-align:right}
+details.it>summary::after{content:"▾";color:var(--ink2);margin-left:6px}
+details.it[open]>summary::after{content:"▴"}
+details.it .body{padding:0 14px 14px;border-top:1px solid var(--line)}
+.row-in{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px}
+.row-in .nm{font-weight:700;flex:1}
+.row-in .inwrap{width:150px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{font-size:12px;color:var(--ink2);text-align:right;font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl td:first-child{white-space:normal}
+.tbl tr.best td{background:var(--goodBg);font-weight:700}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.switch{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);gap:10px}
+.switch:first-child{border-top:0}
+.switch input{width:48px;height:28px;appearance:none;-webkit-appearance:none;background:var(--chip);border-radius:99px;position:relative;flex:0 0 auto;border:1px solid var(--line)}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.switch input:checked{background:var(--brand2)}
+.switch input:checked::after{left:23px}
+.btn{display:block;width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:15px;font-weight:600;padding:12px;border-radius:12px;margin:10px 0;font-family:inherit}
+.btn.warn{color:var(--bad)}
+.sum{font-weight:700;padding:8px 10px;border-radius:10px;margin-top:8px;font-size:14px}
+.sum.ok{background:var(--goodBg);color:var(--good)} .sum.no{background:var(--badBg);color:var(--bad)}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));z-index:10}
+nav.bot button{flex:1;border:0;background:transparent;color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600;padding:6px 2px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.bot button svg{width:24px;height:24px}
+nav.bot button.on{color:var(--brand2);background:var(--chip)}
+.steps{counter-reset:s;padding:0;margin:0;list-style:none}
+.steps li{position:relative;padding:8px 0 8px 40px;border-top:1px solid var(--line);font-size:15px}
+.steps li:first-child{border-top:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:7px;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.pill{display:inline-block;background:var(--inp);border:1px solid var(--inpLine);border-radius:6px;padding:0 6px}
+.bar{height:8px;background:var(--chip);border-radius:99px;overflow:hidden;margin-top:4px}
+.bar>div{height:100%;background:var(--brand2)}
+.bar.neg>div{background:var(--bad)}
+.mini{font-size:13px;color:var(--ink2)}
+.hide{display:none}
+input.n:disabled{background:var(--chip);border-color:var(--line);color:var(--ink2)}
+.fixo{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--chip);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:15px}
+.fixo span{color:var(--ink2);font-size:13px}
+.lk{background:var(--hero);border-radius:12px;padding:4px 12px;margin:10px 0}
+.lk .switch{border-top:0}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btns button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:600;padding:9px 12px;border-radius:10px;font-family:inherit}
+.btns button.pri{background:var(--brand);border-color:var(--brand);color:var(--brandInk)}
+.btns button.warn{color:var(--bad)}
+.btns button:disabled{opacity:.5}
+.sim{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.sim.cur{border-color:var(--brand2);box-shadow:0 0 0 1px var(--brand2)}
+.sim .t{display:flex;align-items:flex-start;gap:8px}
+.sim .t .nm{font-weight:700;flex:1;font-size:16px;word-break:break-word}
+.sim .by{font-size:13px;color:var(--ink2);margin-top:2px}
+.sim .res{font-size:14px;margin-top:8px}
+.star{font-size:20px;line-height:1;color:#d4a017;border:0;background:transparent;padding:0 2px;font-family:inherit}
+.star.off{color:var(--ink2);opacity:.5}
+.ofi{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#f6e7b0;color:#6b5200;margin-left:4px;vertical-align:middle}
+.sync{font-size:13px;color:var(--ink2);margin:6px 0}
+.msg{font-size:14px;font-weight:600;margin-top:8px}
+.tbl td.dif{background:var(--inp)}
+.ren{display:flex;gap:8px;margin-top:8px}
+.ren input{flex:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gear{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:rgba(255,255,255,.12);color:var(--brandInk);border-radius:12px;padding:7px 9px;font-family:inherit;font-size:11px;font-weight:600;flex:0 0 auto}
+.gear svg{width:22px;height:22px}
+.back{border:0;background:transparent;color:var(--brand2);font-family:inherit;font-size:15px;font-weight:600;padding:12px 0 0}
+.pc .pch{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:16px;margin-bottom:2px}
+.pmax{border-radius:10px;padding:2px 10px;margin-top:4px}
+.pmax.ok{background:var(--goodBg)} .pmax.no{background:var(--badBg)}
+.pmax .kv{border-top-color:rgba(0,0,0,.06)}
+.pmax .kv b .mini{font-weight:400;text-align:right}
+.kv b .mini{font-weight:400}
+.row-in{border-top:1px solid var(--line)} .row-in:first-child{border-top:0}
+.row-in .nm{font-weight:600;font-size:15px}
+.row-in .inwrap{width:160px}
+details.rk>summary{align-items:center}
+.alt{margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
+.alt .big2{font-size:18px;font-weight:700;margin:4px 0 8px}
+.pos{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--chip);color:var(--ink2);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+details.rk:first-of-type .pos{background:var(--brand);color:#fff}
+details.it .body .switch:first-child{border-top:0;padding-top:12px}
+.q{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--ink2);background:transparent;color:var(--ink2);font-size:12px;font-weight:700;padding:0;margin-left:4px;vertical-align:middle;font-family:inherit;line-height:1}
+.tip{position:fixed;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));bottom:calc(80px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.4;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:688px;margin:0 auto}
+.verd{border-radius:10px;padding:10px 12px;margin:12px 0 4px;font-size:15px;line-height:1.4}
+.verd.ok{background:var(--goodBg)} .verd.warn{background:var(--inp)} .verd.no{background:var(--badBg)}
+.verd b{display:block;margin-bottom:2px}
+.verd.ok b{color:var(--good)} .verd.no b{color:var(--bad)}
+.lote{font-size:13px;color:var(--ink2);margin:-4px 0 6px;text-align:right}
+.lote b{color:var(--ink)}
+details.more{margin-top:6px}
+details.more>summary{cursor:pointer;color:var(--brand2);font-weight:600;font-size:14px;padding:8px 0;list-style:none}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::after{content:" ▾"} details.more[open]>summary::after{content:" ▴"}
+details.grp{margin:14px 0}
+details.grp>summary{cursor:pointer;list-style:none;padding:12px 14px;border-radius:14px;background:var(--chip);color:var(--ink2);font-weight:600;font-size:15px}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary::after{content:" ▾"} details.grp[open]>summary::after{content:" ▴"}
+.alert{background:var(--inp);border:1px solid var(--inpLine);border-radius:12px;padding:10px 12px;margin:12px 0 0;font-size:14px}
+.alert a{color:var(--brand2);font-weight:700}
+.pdate{font-size:14px;margin:4px 0 8px}
+.guide{border-color:var(--brand2)}
+.guide .steps li{font-size:14px}
+.pdl{display:block;margin:2px 0 6px;font-weight:400}
+.row-in .pdl{margin:3px 0 0}
+.pdb{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+.pdb.fresh{background:var(--goodBg);color:var(--good)} .pdb.old{background:var(--inp);color:#8a6d00} .pdb.ex{background:var(--chip);color:var(--ink2)}
+.conf{border:0;background:transparent;color:var(--brand2);font-family:inherit;font-size:12px;font-weight:700;padding:4px 2px;text-decoration:underline}
+.lotebtn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1.5px solid var(--brand2);background:var(--card)}
+.lotebtn b{color:var(--brand2);font-size:16px} .lotebtn span{font-size:13px;color:var(--ink2);font-weight:400}
+.kv span:first-child{flex:0 1 auto;min-width:96px}
+.kv b .mini{white-space:normal}
+.ingc{padding:10px 12px;margin:8px 0}
+.ingtop{display:flex;align-items:center;gap:10px}
+.ingtop .nm{flex:1;font-weight:700;font-size:15px}
+.ingin{width:130px;flex:0 0 auto}
+.ingc details.more{margin-top:2px}
+.ingc details.more>summary{padding:4px 0;font-size:13px}
+.usecost{margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}
+nav.bot button{font-size:11px}
+.praca{display:inline-flex;background:rgba(255,255,255,.14);border-radius:99px;padding:3px;margin-top:6px;gap:2px}
+.praca button{border:0;background:transparent;color:var(--brandInk);font-family:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:99px;opacity:.8}
+.praca button.on{background:#fff;color:var(--brand);opacity:1}
+.addc{border-color:var(--brand2)}
+.ingc.novo{border-color:var(--brand2);box-shadow:0 0 0 2px var(--goodBg)}
+.dierow{padding:10px 14px;border-top:1px solid var(--line)} .dierow:first-child{border-top:0}
+.dval{font-size:18px;white-space:nowrap} .dval .mini{font-weight:400;margin-left:2px}
+select.dsel{font-size:14px;padding:7px 30px 7px 10px;margin-top:6px;background-color:var(--card);border-color:var(--line)}
+.demo-t td{vertical-align:top;padding:8px 4px}
+.demo-t td:last-child{padding-left:10px}
+.demo-t .mini{white-space:normal;line-height:1.3;margin-top:2px}
+.mini.cab{display:block;margin-top:3px;font-weight:600}
+.cfline{font-size:14px;color:var(--ink2);margin:8px 0 4px;padding:8px 10px;background:var(--chip);border-radius:10px} .cfline .grid2{margin-top:-4px}
+
+body{padding-bottom:env(safe-area-inset-bottom)}
+textarea.n{width:100%;font-family:inherit;padding:10px;border-radius:10px;border:1.5px solid var(--line);color:var(--ink);resize:vertical}
+</style></head><body>
+<header class="top"><div class="wrap topbar">
+  <div><h1>Lote offline</h1><div class="praca" id="segPraca"><button data-v="GO">Goiás</button><button data-v="SP">São Paulo</button></div></div>
+</div></header>
+<main class="wrap" style="padding-bottom:30px">
+  <p class="sync" id="dadosInfo"></p>
+  <div class="card" id="loteForm"></div>
+  <div class="card" id="loteRes"></div>
+  <details class="it" id="ajBox"><summary><span class="nm">Ajustes e dados do app</span><span class="sm"></span></summary><div class="body" id="ajBody"></div></details>
+  <p class="hint" style="text-align:center">Funciona sem internet. Os números ficam guardados neste iPhone.</p>
+</main>
+<div id="tip" class="tip hide" role="status"></div>
+<script>
+(function(){
+"use strict";
+// ---------- dados de exemplo (substituídos pelo código vindo do app principal) ----------
+const CATS0=[
+  {n:'Vaca parida + bezerro',d:3,un:'cab',cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005,bez:{p0:100,gmd:1,cons:1.5}},
+  {n:'Recria macho c/ volumoso',d:1,un:'kg',cons:.025,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005},
+  {n:'Recria macho s/ volumoso',d:0,un:'kg',cons:.018,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005},
+  {n:'Recria fêmea c/ volumoso',d:1,un:'kg',cons:.025,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005},
+  {n:'Recria fêmea s/ volumoso',d:0,un:'kg',cons:.018,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005},
+  {n:'Boi',d:2,un:'arroba',cons:.023,p0:400,pf:570,gmd:1.6,re:.5,rs:.54,mort:.005},
+  {n:'Novilha',d:2,un:'arroba',cons:.023,p0:320,pf:430,gmd:1.4,re:.5,rs:.52,mort:.005},
+  {n:'Vaca solteira',d:2,un:'arroba',cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005}];
+const PR0={cats:[{cu:6000,venda:320,bp:16},{cu:12.65,venda:340},{cu:12.65,venda:340},{cu:11.33,venda:310},{cu:11.33,venda:310},{cu:340,venda:370},{cu:320,venda:355},{cu:290,venda:320}],dcost:[1.36,1.06,1.14,1.14],base:10};
+const DEF={v:1,at:0,exemplo:true,praca:'GO',dietas:['Recria sem volumoso','Recria com volumoso','Terminação','Vaca parida'],cats:CATS0,
+  pracas:{GO:PR0,SP:Object.assign(JSON.parse(JSON.stringify(PR0)),{base:0})},fixo:2,mm:.03,
+  loteCfg:{leilao:{com:.02,frete:60},direto:{com:0,frete:60}},fut:{preco:0,custo:1.5,desc:[30,0,0,0,0,0,15,30]}};
+const KEY='lote-offline-v1', clone=o=>JSON.parse(JSON.stringify(o)), isN=x=>typeof x==='number'&&isFinite(x);
+let D, L;
+function valid(o){return o&&o.v===1&&Array.isArray(o.cats)&&o.cats.length===8&&o.pracas&&o.pracas.GO&&o.pracas.SP&&Array.isArray(o.pracas.GO.cats)}
+try{const o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o&&valid(o.D)){D=o.D;L=o.L}}catch(e){}
+if(!D)D=clone(DEF);
+if(!L)L={k:5,onde:'leilao',modo:'app',qt:1};
+function save(){try{localStorage.setItem(KEY,JSON.stringify({D,L}))}catch(e){}}
+
+// ---------- formatação ----------
+const F={};[0,1,2].forEach(d=>F[d]=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}));
+const fin=x=>isFinite(x)?x:0, brl=(x,d=0)=>'R$ '+F[d].format(fin(x)), num=(x,d=0)=>F[d].format(fin(x)), pct=(x,d=1)=>F[d].format(fin(x)*100)+'%';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const UNS={cab:'',kg:'/kg',arroba:'/@'}, PNOME={GO:'Goiás',SP:'São Paulo'};
+function parseNum(s){s=String(s).trim().replace(/R\$|%|\s/g,''); if(s==='')return NaN;
+  if(s.indexOf(',')>=0)s=s.replace(/\./g,'').replace(',','.'); else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,''); return parseFloat(s)}
+function showVal(v,t){if(v===''||v==null||!isFinite(v))return ''; if(t==='pct')return F[1].format(v*100).replace(/,0$/,''); if(t==='rs0')return F[0].format(v); return String(Math.round(v*10000)/10000).replace('.',',')}
+function liveMil(el){const old=el.value,pos=el.selectionStart==null?old.length:el.selectionStart,right=old.slice(pos).replace(/\D/g,'').length,dig=old.replace(/\D/g,'').replace(/^0+(?=\d)/,''),fmt=dig?F[0].format(+dig):'';
+  if(fmt===old)return; el.value=fmt; let i=fmt.length,n=0; while(i>0&&n<right){i--; if(/\d/.test(fmt[i]))n++} try{el.setSelectionRange(i,i)}catch(_){}}
+const when=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+const hojeISO=()=>{const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const kv=(l,v,cls,strong)=>`<div class="kv${strong?' strong':''}"><span>${l}</span><b class="${cls||''}">${v}</b></div>`;
+const sg=x=>x<0?'bad':'good';
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const FUT_CATS=[0,5,6,7];
+const P=()=>D.pracas[D.praca];
+const fcOf=(c,p0)=>c.un==='kg'?p0:c.un==='arroba'?p0/30:1;
+
+// ---------- preencher o lote com os dados da categoria ----------
+function fill(k){const c=D.cats[k], pr=P().cats[k]||{}; Object.assign(L,{k,p0:c.p0,pf:c.pf,cu:pr.cu,venda:pr.venda,dc:P().dcost[c.d],dcEdit:false,ent:L.ent||hojeISO()});
+  L.lance=Math.round(L.cu*fcOf(c,L.p0)); if(c.bez){L.bp0=c.bez.p0; L.bpreco=pr.bp!=null?pr.bp:16}}
+if(L.p0==null)fill(L.k);
+
+// ---------- montar a tela ----------
+const inp=(id,label,val,unit,t,attr)=>`<label class="f"><span>${label}</span><div class="inwrap"><input class="n" id="${id}" ${attr||`data-lt="${t||'num'}"`} inputmode="decimal" value="${showVal(val,t==='rs0'?'rs0':t==='pct'?'pct':'num')}"><i>${unit}</i></div></label>`;
+function build(){
+  const c=D.cats[L.k], leil=L.onde!=='direto', canFut=FUT_CATS.includes(L.k), isFut=canFut&&L.modo==='fut', f=D.fut;
+  if(!L.dcEdit)L.dc=P().dcost[c.d];
+  document.querySelectorAll('#segPraca button').forEach(b=>b.classList.toggle('on',b.dataset.v===D.praca));
+  document.getElementById('dadosInfo').innerHTML=D.exemplo?'<span class="pdb ex">valores de exemplo</span> Cole o código do app em “Ajustes e dados do app”.':`Dados do app de <b>${when(D.at)}</b>`;
+  const descLbl={0:'Desconto da vaca em relação ao boi',6:'Desconto da novilha em relação ao boi',7:'Desconto da vaca em relação ao boi'};
+  const cf=D.loteCfg[leil?'leilao':'direto'];
+  document.getElementById('loteForm').innerHTML=`
+    <div class="seg" id="ltOnde" style="margin-bottom:10px"><button data-v="leilao" class="${leil?'on':''}">Leilão</button><button data-v="direto" class="${leil?'':'on'}">Direto com o produtor</button></div>
+    <label class="f" style="margin-top:0"><span>Categoria</span><select class="n" id="lt_k">${D.cats.map((x,k)=>`<option value="${k}" ${k===L.k?'selected':''}>${esc(x.n)}</option>`).join('')}</select></label>
+    <div class="grid2">${inp('lt_p0','Peso de compra',L.p0,'kg')}${leil?inp('lt_lance',c.un==='cab'?'Lance (R$ o conjunto)':'Lance (R$ por cabeça)',L.lance,'R$','rs0'):inp('lt_cu',c.un==='cab'?'Preço pedido (R$ o conjunto)':c.un==='kg'?'Preço pedido (R$/kg vivo)':'Preço pedido (R$/@)',L.cu,'R$'+UNS[c.un],c.un==='cab'?'rs0':'num')}
+    ${inp('lt_qt','Quantas cabeças',L.qt,'cab')}${inp('lt_pf',c.bez?'Peso de saída da vaca':'Peso de saída',L.pf,'kg')}
+    ${inp('lt_dc','Custo da dieta (R$/kg MS)',L.dc,'R$/kg')}</div>
+    <p class="hint" style="margin:-4px 0 0">${L.dcEdit?'Custo mudado só para este lote.':'Vem da '+esc(D.dietas[c.d])+' ('+PNOME[D.praca]+').'}</p>
+    <div class="cfline" id="ltCf"></div>
+    ${c.bez?`<h3>Bezerro</h3><div class="grid2">${inp('lt_bp0','Peso do bezerro na compra',L.bp0,'kg')}${inp('lt_bpreco','Venda do bezerro (R$/kg vivo)',L.bpreco,'R$/kg')}</div>`:''}
+    <h3>Preço de venda${c.bez?' da vaca':''}</h3>
+    ${canFut?`<div class="seg" id="ltModo"><button data-v="app" class="${isFut?'':'on'}">Do app</button><button data-v="fut" class="${isFut?'on':''}">Pelo mercado futuro</button></div>`:''}
+    ${!isFut?`<div class="grid2">${inp('lt_venda','Preço de venda (R$/@)',L.venda,'R$/@')}</div>`:
+      `<div class="grid2">${inp('lt_f_preco','Cotação do futuro — boi SP (R$/@)',f.preco||'','R$/@','num','data-ft="preco"')}${inp('lt_f_base','Base: '+PNOME[D.praca]+' paga abaixo de SP (R$/@)',P().base,'R$/@','num','data-ft="base"')}
+      ${inp('lt_f_custo','Custo da trava (R$/@)',f.custo,'R$/@','num','data-ft="custo"')}${L.k!==5?inp('lt_f_desc',descLbl[L.k],f.desc[L.k]||0,'R$/@','num','data-ft="desc"'):''}</div>
+      <label class="f"><span>Data de entrada no cocho</span><input class="n" type="date" id="lt_ent" value="${esc(L.ent||hojeISO())}"></label>`}`;
+  cfRender();
+  const cu=document.getElementById(leil?'lt_lance':'lt_cu'); if(cu&&c.un!=='cab'){const sp=document.createElement('span'); sp.className='mini cab'; sp.id='ltCuCab'; cu.closest('.inwrap').after(sp)}
+  ajBuild(); calc();
+}
+let cfEdit=false;
+function cfRender(){const el=document.getElementById('ltCf'), cf=D.loteCfg[L.onde==='direto'?'direto':'leilao'];
+  el.innerHTML=cfEdit?`<div class="grid2">${inp('cf_com','Comissão de compra',cf.com,'%','pct','data-cf="com"')}${inp('cf_frete','Frete',cf.frete,'R$/cab','num','data-cf="frete"')}</div><button class="conf" id="ltCfOk" type="button">pronto</button>`:
+    `<span>Comissão ${pct(cf.com,1).replace(',0%','%')} · Frete ${brl(cf.frete)}/cab</span> <button class="conf" id="ltCfEdit" type="button">mudar</button>`}
+
+// ---------- a conta (mesma do app principal) ----------
+function calc(){
+  const c=D.cats[L.k], leil=L.onde!=='direto', cf=D.loteCfg[leil?'leilao':'direto'], isFut=FUT_CATS.includes(L.k)&&L.modo==='fut';
+  const fc=fcOf(c,L.p0)||1, base=leil?L.lance:(c.un==='cab'?L.cu:L.cu*fc);
+  const el=document.getElementById('ltCuCab');
+  if(el)el.innerHTML=!(isN(base)&&fc>0)?'':leil?`= ${brl(base/fc,2)}${UNS[c.un]}`+(c.un==='arroba'?` (${num(fc,1)} @)`:'')+(cf.com?`<br>com comissão: <b>${brl(base*(1+cf.com)/fc,2)}${UNS[c.un]}</b>`:''):`= ${brl(base)} por cabeça`+(c.un==='arroba'?` (${num(fc,1)} @)`:'');
+  const res=document.getElementById('loteRes');
+  const venda=isFut?D.fut.preco-P().base-D.fut.custo-(D.fut.desc[L.k]||0):L.venda;
+  if(isFut&&!(D.fut.preco>0)){res.innerHTML='<p class="hint" style="margin:0">Digite a <b>cotação do futuro</b> do vencimento em que o lote vai sair.</p>';return}
+  if(!(L.pf>L.p0)||!(c.gmd>0)){res.innerHTML='<div class="verd no"><b>Confira os pesos.</b> O peso de saída tem que ser maior que o de compra.</div>';return}
+  const bz=c.bez?{p0:L.bp0,gmd:c.bez.gmd,cons:c.bez.cons,preco:L.bpreco}:{p0:0,gmd:0,cons:0,preco:0};
+  const dias=Math.ceil((L.pf-L.p0)/c.gmd-1e-9), cons=c.cons*(L.p0+L.pf)/2+bz.cons, kg=L.dc;
+  const tdia=cons*kg+D.fixo, oper=tdia*dias, compra=base*(1+cf.com)+cf.frete, ctot=compra+oper;
+  const arr=(L.pf*c.rs-L.p0*c.re)/15+bz.gmd*dias/30;
+  const vv=L.pf*c.rs/15*venda, pb=bz.p0+bz.gmd*dias, vb=pb*bz.preco, rec=(vv+vb)*(1-c.mort);
+  const luc=rec-ctot, mm=ctot>0?Math.pow(rec/ctot,30/dias)-1:0, pmax=rec/Math.pow(1+D.mm,dias/30)-oper, maxBase=(pmax-cf.frete)/(1+cf.com);
+  const cab=c.un==='cab', qt=Math.max(0,Math.floor(L.qt||0));
+  const pago=cab?brl(base)+' o conjunto':leil?brl(base)+' por cabeça':brl(base/fc,2)+UNS[c.un], maxp=cab?brl(maxBase)+' o conjunto':leil?brl(maxBase)+' por cabeça':brl(maxBase/fc,2)+UNS[c.un];
+  const maxAlt=cab?'':leil?`= ${brl(maxBase/fc,2)}${UNS[c.un]}`:`= ${brl(maxBase)} por cabeça`, lanc=leil?'dê lance de no máximo':'pague no máximo';
+  let verd;
+  if(luc<=0)verd=`<div class="verd no"><b>Dá prejuízo.</b> Cada cabeça perde ${brl(-luc)}. Para ter ${pct(D.mm)} ao mês, ${lanc} ${maxp}.</div>`;
+  else if(mm<D.mm)verd=`<div class="verd warn"><b>Dá lucro, mas abaixo da sua margem.</b> Rende ${pct(mm,2)} ao mês e você quer ${pct(D.mm)}. Para chegar lá, ${lanc} ${maxp}.</div>`;
+  else verd=`<div class="verd ok"><b>Compra boa.</b> ${leil?'Lance de':'Pedem'} ${pago} e você pode ${leil?'ir até':'pagar até'} ${maxp}. Rende ${pct(mm,2)} ao mês.</div>`;
+  let fut='';
+  if(isFut){const f=D.fut, d=f.desc[L.k]||0, ent=new Date((L.ent||hojeISO())+'T12:00:00'), sai=new Date(ent.getTime()+dias*864e5), arrT=L.pf*c.rs/15*qt, ctr=arrT/330;
+    fut='<h3>Mercado futuro</h3>'+kv('Venda em '+PNOME[D.praca],`${brl(venda,2)}/@<div class="mini">futuro ${brl(f.preco,2)} − base ${brl(P().base,2)} − trava ${brl(f.custo,2)}${d?` − desconto ${brl(d,2)}`:''}</div>`,'',true)+
+      kv('Saída prevista',`${sai.toLocaleDateString('pt-BR')}<div class="mini">use o vencimento de <b>${MESES[sai.getMonth()]}/${sai.getFullYear()}</b></div>`)+
+      kv('Arrobas para travar',`${num(arrT)} @<div class="mini">≈ ${num(ctr,1)} contratos de 330 @ → ${num(Math.round(ctr))}</div>`)}
+  // passo a passo
+  const F2=x=>F[2].format(x), rows=[];
+  rows.push(['Dias de cocho',`(${num(L.pf)} − ${num(L.p0)}) ÷ ${num(c.gmd,2).replace(/,?0+$/,'')} kg/dia = ${num((L.pf-L.p0)/c.gmd,1)} → arredonda para cima`,`${num(dias)} dias`]);
+  rows.push(['Consumo por dia',`${pct(c.cons,1)} × peso médio ${num((L.p0+L.pf)/2)} kg${bz.cons?` + ${num(bz.cons,1)} kg do bezerro`:''}`,`${F2(cons)} kg MS`]);
+  rows.push(['Custo por dia',`${F2(cons)} kg × ${brl(kg,2)} + ${brl(D.fixo,2)} de custo fixo`,brl(tdia,2)]);
+  rows.push(['Custo no cocho',`${brl(tdia,2)} × ${num(dias)} dias`,brl(oper)]);
+  rows.push([leil?'Lance':'Preço',cab?'preço do conjunto':c.un==='kg'?`${num(L.p0)} kg × ${brl(base/fc,2)}/kg`:`${num(L.p0)} kg ÷ 30 = ${num(fc,2)} @ × ${brl(base/fc,2)}/@`,brl(base)]);
+  if(cf.com)rows.push(['Comissão',`${pct(cf.com,1)} × ${brl(base)}`,brl(base*cf.com)]);
+  if(cf.frete)rows.push(['Frete','por cabeça',brl(cf.frete)]);
+  rows.push(['<b>Custo total</b>',`${brl(compra)} + ${brl(oper)}`,`<b>${brl(ctot)}</b>`]);
+  rows.push([c.bez?'Venda da vaca':'Venda',`${num(L.pf)} kg × ${pct(c.rs,0)} ÷ 15 = ${num(L.pf*c.rs/15,2)} @ × ${brl(venda,2)}`,brl(vv)]);
+  if(c.bez)rows.push(['Venda do bezerro',`${num(bz.p0)} kg + ${num(dias)} dias × ${num(bz.gmd,1)} kg = ${num(pb)} kg × ${brl(bz.preco,2)}`,brl(vb)]);
+  rows.push(['<b>Receita</b>',`${c.bez?`(${brl(vv)} + ${brl(vb)})`:brl(vv)} − ${pct(c.mort,1)} de mortalidade`,`<b>${brl(rec)}</b>`]);
+  rows.push(['<b>Lucro por cabeça</b>',`${brl(rec)} − ${brl(ctot)}`,`<b class="${sg(luc)}">${brl(luc)}</b>`]);
+  rows.push(['<b>Margem ao mês</b>',`(${brl(rec)} ÷ ${brl(ctot)}), elevado a (30 ÷ ${num(dias)}), menos 1`,`<b>${pct(mm,2)}</b>`]);
+  rows.push([leil?'Lance máximo':'Preço máximo',`${brl(rec)} ÷ (1 + ${pct(D.mm,1)}) elevado a (${num(dias)} ÷ 30) − ${brl(oper)} = ${brl(pmax)}`+(cf.com||cf.frete?`; (${brl(pmax)}${cf.frete?' − '+brl(cf.frete):''})${cf.com?' ÷ (1 + '+pct(cf.com,1)+')':''} = ${brl(maxBase)}`:''),cab||leil?brl(maxBase):brl(maxBase/fc,2)+UNS[c.un]]);
+  res.innerHTML=verd+
+    kv(`${leil?'Lance máximo':'Preço máximo'}`,`${maxp}${maxAlt?`<div class="mini">${maxAlt}</div>`:''}`,'',true)+
+    (cf.com||cf.frete?kv('Compra com comissão e frete',`${brl(compra)}${cab?'':' por cabeça'}<div class="mini">${brl(base)}${cf.com?' + comissão '+brl(base*cf.com):''}${cf.frete?' + frete '+brl(cf.frete):''}</div>`):'')+
+    kv('Margem ao mês',pct(mm,2),mm<D.mm?'bad':'good',true)+kv('Lucro por cabeça',brl(luc),sg(luc))+kv(`Lucro do lote (${num(qt)} cab.)`,brl(luc*qt),sg(luc),true)+
+    kv('Dinheiro necessário (compra + cocho)',brl(ctot*qt))+kv('Dias de cocho',num(dias))+
+    (c.bez?kv('Bezerro sai com',`${num(pb)} kg<div class="mini">= ${brl(vb)} por bezerro</div>`):'')+fut+
+    `<details class="more demo" ${L.demo?'open':''}><summary>Ver a conta passo a passo</summary><table class="tbl demo-t">${rows.map(x=>`<tr><td>${x[0]}<div class="mini">${x[1]}</div></td><td>${x[2]}</td></tr>`).join('')}</table></details>`;
+}
+
+// ---------- ajustes e importação ----------
+function ajBuild(){
+  document.getElementById('ajBody').innerHTML=`<div class="grid2">${inp('aj_mm','Margem mínima ao mês',D.mm,'%','pct','data-aj="mm"')}${inp('aj_fixo','Custo fixo por cabeça/dia',D.fixo,'R$','num','data-aj="fixo"')}</div>
+    <h3>Atualizar com os dados do app</h3>
+    <p class="hint">No app principal, em <b>Lote</b>, toque em “Levar para o Lote offline” e copie o código. Depois cole aqui e toque em “Atualizar”.</p>
+    <textarea class="n" id="impTxt" rows="3" placeholder="Cole o código aqui" style="background:var(--card);border-color:var(--line);font-size:14px"></textarea>
+    <div class="btns"><button class="pri" id="impOk">Atualizar</button></div><p class="msg" id="impMsg"></p>`;
+}
+function importar(txt){
+  txt=String(txt||'').trim(); const m=txt.match(/LOTE1:([A-Za-z0-9+/=_-]+)/); if(!m)return 'Código não reconhecido. Copie de novo no app.';
+  try{const b=m[1].replace(/-/g,'+').replace(/_/g,'/'); const json=decodeURIComponent(escape(atob(b))); const o=JSON.parse(json);
+    if(!valid(o))return 'Código incompleto. Copie de novo no app.'; o.exemplo=false; D=o; fill(L.k); save(); build(); return ''}catch(e){return 'Não consegui ler o código. Copie de novo no app.'}
+}
+
+// ---------- eventos ----------
+document.addEventListener('input',e=>{const el=e.target; if(!el.dataset)return;
+  if(el.id==='lt_ent'){L.ent=el.value; save(); calc(); return}
+  const v=parseNum(el.value);
+  if(el.dataset.lt==='rs0')liveMil(el);
+  if(el.dataset.ft){const x=isNaN(v)?0:v; if(el.dataset.ft==='base')P().base=x; else if(el.dataset.ft==='desc')D.fut.desc[L.k]=x; else D.fut[el.dataset.ft]=x; save(); calc(); return}
+  if(el.dataset.cf){D.loteCfg[L.onde==='direto'?'direto':'leilao'][el.dataset.cf]=isNaN(v)?0:(el.dataset.cf==='com'?v/100:v); save(); calc(); return}
+  if(el.dataset.aj){if(isNaN(v))return; D[el.dataset.aj]=el.dataset.aj==='mm'?v/100:v; save(); calc(); return}
+  if(!el.dataset.lt||isNaN(v))return;
+  const key=el.id.slice(3), c=D.cats[L.k]; L[key]=v; if(key==='dc')L.dcEdit=true;
+  const fc=fcOf(c,L.p0)||1; if(key==='lance')L.cu=v/fc; if(key==='cu')L.lance=v*fc; if(key==='p0'){if(L.onde==='direto')L.lance=L.cu*fc; else L.cu=L.lance/fc}
+  save(); calc();
+});
+document.addEventListener('change',e=>{if(e.target.id==='lt_k'){fill(+e.target.value); save(); build()}});
+document.addEventListener('focusin',e=>{const t=e.target; if(t.tagName==='INPUT'&&t.type!=='date')setTimeout(()=>{try{t.select()}catch(_){}} ,0)});
+document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('demo')){L.demo=e.target.open; save()}},true);
+document.addEventListener('click',e=>{const t=e.target;
+  const pb=t.closest('#segPraca button'); if(pb){D.praca=pb.dataset.v; const c=D.cats[L.k], pr=P().cats[L.k]||{}; L.cu=pr.cu; L.venda=pr.venda; L.lance=Math.round(L.cu*fcOf(c,L.p0)); if(c.bez&&pr.bp!=null)L.bpreco=pr.bp; L.dcEdit=false; save(); build(); return}
+  const ob=t.closest('#ltOnde button'); if(ob){L.onde=ob.dataset.v; cfEdit=false; save(); build(); return}
+  const mb=t.closest('#ltModo button'); if(mb){L.modo=mb.dataset.v; save(); build(); return}
+  if(t.id==='ltCfEdit'){cfEdit=true; cfRender(); return}
+  if(t.id==='ltCfOk'){cfEdit=false; cfRender(); calc(); return}
+  if(t.id==='impOk'){const m=importar(document.getElementById('impTxt').value); const el=document.getElementById('impMsg');
+    if(m){el.textContent=m; el.className='msg bad'} else {const e2=document.getElementById('impMsg'); if(e2){e2.textContent='Atualizado!'; e2.className='msg good'} document.getElementById('dadosInfo').scrollIntoView()}}
+});
+build();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body></html>
