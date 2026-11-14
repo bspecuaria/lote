@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Lote offline</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Lote">
@@ -9,6 +8,7 @@
 <meta name="theme-color" content="#1f4d36">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Confinamento offline</title>
 <style>
 :root{
   --bg:#f4f1ea; --card:#ffffff; --ink:#1d2a22; --ink2:#5b6a60; --line:#e2ddd2;
@@ -205,199 +205,997 @@ select.dsel{font-size:14px;padding:7px 30px 7px 10px;margin-top:6px;background-c
 .demo-t .mini{white-space:normal;line-height:1.3;margin-top:2px}
 .mini.cab{display:block;margin-top:3px;font-weight:600}
 .cfline{font-size:14px;color:var(--ink2);margin:8px 0 4px;padding:8px 10px;background:var(--chip);border-radius:10px} .cfline .grid2{margin-top:-4px}
+textarea.n{font-family:inherit;padding:10px;border-radius:10px;border:1.5px solid var(--line);color:var(--ink);resize:vertical}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:var(--brandInk)}
+.offtag{font-size:11px;font-weight:700;background:#f6e7b0;color:#6b5200;border-radius:99px;padding:2px 8px;vertical-align:middle;margin-left:4px}
+</style>
+</head><body>
 
-body{padding-bottom:env(safe-area-inset-bottom)}
-textarea.n{width:100%;font-family:inherit;padding:10px;border-radius:10px;border:1.5px solid var(--line);color:var(--ink);resize:vertical}
-</style></head><body>
+
 <header class="top"><div class="wrap topbar">
-  <div><h1>Lote offline</h1><div class="praca" id="segPraca"><button data-v="GO">Goiás</button><button data-v="SP">São Paulo</button></div></div>
+  <div><h1>Confinamento <span class="offtag">offline</span></h1><div class="praca" id="segPraca"><button data-v="GO">Goiás</button><button data-v="SP">São Paulo</button></div></div>
+  <button class="gear" id="btnCfg" aria-label="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Configurações</span></button>
 </div></header>
-<main class="wrap" style="padding-bottom:30px">
-  <p class="sync" id="dadosInfo"></p>
-  <div class="card" id="loteForm"></div>
-  <div class="card" id="loteRes"></div>
-  <details class="it" id="ajBox"><summary><span class="nm">Ajustes e dados do app</span><span class="sm"></span></summary><div class="body" id="ajBody"></div></details>
-  <p class="hint" style="text-align:center">Funciona sem internet. Os números ficam guardados neste iPhone.</p>
+
+<main class="wrap">
+  <!-- DECIDIR -->
+  <section id="t-inv">
+    <div class="card guide hide" id="guide"><b>Como usar em 3 passos</b><ol class="steps">
+      <li>Atualize os preços dos animais e o custo da dieta na tela <b>Preços</b>.</li>
+      <li>Aqui em <b>Decidir</b>, digite quanto tem para investir e a margem que você quer.</li>
+      <li>Veja a resposta logo abaixo. Toque numa categoria para saber se a compra está boa.</li></ol>
+      <button class="btn" id="guideOk" style="margin:8px 0 0">Entendi</button></div>
+    <div id="priceAlert"></div>
+    <p class="sync" id="curInfo"></p>
+    <div class="card">
+      <label class="f big-in" style="margin-top:0"><span>Quanto você tem para investir (R$)</span><div class="inwrap"><input class="n" data-k="inv.valor" data-t="rs0" inputmode="decimal"></div></label>
+      <label class="f"><span>Margem mínima que você quer (% ao mês) <button class="q" data-q="minima" type="button">?</button></span><div class="inwrap"><input class="n" data-k="gen.mm" data-t="pct" inputmode="decimal"><i>% ao mês</i></div></label>
+    </div>
+    <div class="card hero" id="invHero"></div>
+    <h3>Categorias — da melhor para a pior</h3>
+    <p class="hint" id="rankHint"></p>
+    <div id="catList"></div>
+    <div class="card"><label class="f" style="margin:0"><span>Para comparar: rendimento de uma aplicação (% ao ano)</span><div class="inwrap"><input class="n" data-k="inv.apl" data-t="pct" inputmode="decimal"><i>%</i></div></label></div>
+  </section>
+
+  <!-- PREÇOS -->
+  <section id="t-pre" class="hide">
+    <h2>Preços — <span class="pnm"></span></h2>
+    <p class="pdate" id="pDate"></p>
+    <p class="hint">Atualize aqui o que muda toda semana. “Pode pagar até” é o preço de compra que ainda dá a margem mínima de <b id="mmTxt"></b> ao mês.</p>
+    <h3>Animais</h3>
+    <div id="preCats"></div>
+    <h3>Custo da dieta — R$ por kg de matéria seca</h3>
+    <div class="card" id="preDie" style="padding:4px 0"></div>
+    <p class="hint">Inclui o volumoso. “Da dieta…” calcula sozinho com os ingredientes e os preços desta praça na tela <b>Dieta</b>. Para usar um número fixo, escolha “Digitar o custo”.</p>
+  </section>
+
+  <!-- SIMULAÇÕES -->
+  <section id="t-sim" class="hide">
+    <h2>Simulações salvas</h2>
+    <p class="sync" id="syncInfo"></p>
+    <div class="card" id="simSave"></div>
+    <div id="simMore">
+    <h3>Comparar duas simulações</h3>
+    <div class="card" id="simCmp"></div>
+    <h3>Lista da família</h3>
+    <div class="seg" id="segMine"><button data-v="all">Todas</button><button data-v="mine">Só as minhas</button></div>
+    <div id="simList"></div></div>
+  </section>
+
+  <!-- DIETA -->
+  <section id="t-form" class="hide">
+    <h2>Simular uma dieta — <span class="pnm"></span></h2>
+    <p class="hint">Monte a dieta na matéria seca e veja o custo por kg de MS. Se gostar, use esse custo na tela Preços.</p>
+    <div id="formBox"></div>
+  </section>
+
+  <!-- AVALIAR LOTE -->
+  <section id="t-lote" class="hide">
+    <h2>Avaliar um lote</h2>
+    <p class="hint">Viu um lote no leilão ou recebeu uma oferta? Coloque peso e preço e veja se vale a pena. Não muda os seus dados.</p>
+    <div class="card" id="loteForm"></div>
+    <div class="card" id="loteRes"></div>
+    <details class="it hide" id="offBox"><summary><span class="nm">Lote offline (sem internet)</span><span class="sm">instalado</span></summary><div class="body">
+      <p class="hint">O <b>Lote offline</b> já está com os seus números de Goiás e São Paulo e funciona sem internet. Endereço: <a href="https://bspecuaria.github.io/lote/" target="_blank" rel="noopener" style="color:var(--brand2);font-weight:700">bspecuaria.github.io/lote</a></p>
+      <p class="hint"><b>Para atualizar os números dele</b> (quando mudar preços, custos ou pesos aqui): peça ao Claude “atualiza o Lote offline”. Ele manda um index.html novo para você subir no GitHub. Lá dentro você também pode mudar venda, custo da dieta, comissão e frete na hora.</p>
+      <details class="more"><summary>Outra forma: código para colar</summary>
+      <button class="btn" id="offGen" style="margin-top:4px">Gerar código</button>
+      <div id="offOut"></div></details></div></details>
+  </section>
+
+  <!-- CONFIGURAÇÕES -->
+  <section id="t-cfg" class="hide">
+    <button class="back" id="btnBack">← Voltar</button>
+    <h2>Configurações</h2>
+    <p class="hint">Dados que mudam pouco. Campos <span class="pill">amarelos</span> são para digitar.</p>
+    <div class="sub" id="subCfg">
+      <button data-v="cat">Animais</button><button data-v="ger">Gerais</button><button data-v="aju">Ajuda</button>
+    </div>
+    <div id="cf-cat"></div>
+    <div id="cf-ger" class="hide"></div>
+    <div id="cf-aju" class="hide"></div>
+  </section>
 </main>
+
 <div id="tip" class="tip hide" role="status"></div>
+<nav class="bot" id="nav">
+  <button data-v="inv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.2c-.6-.8-1.7-1.2-3-1.2-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.3 0-2.4-.5-3-1.3M12 6.5V8M12 16v1.5"/></svg>Decidir</button>
+  <button data-v="lote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h2M12 19h2M16 15v4"/></svg>Lote</button>
+  <button data-v="form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-2 2-2 2-4M12 7c0-2 2-2 2-4M16 7c0-2 2-2 2-4"/></svg>Dieta</button>
+  <button data-v="pre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Preços</button>
+</nav>
+
 <script>
+
 (function(){
 "use strict";
-// ---------- dados de exemplo (substituídos pelo código vindo do app principal) ----------
-const CATS0=[
-  {n:'Vaca parida + bezerro',d:3,un:'cab',cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005,bez:{p0:100,gmd:1,cons:1.5}},
-  {n:'Recria macho c/ volumoso',d:1,un:'kg',cons:.025,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005},
-  {n:'Recria macho s/ volumoso',d:0,un:'kg',cons:.018,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005},
-  {n:'Recria fêmea c/ volumoso',d:1,un:'kg',cons:.025,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005},
-  {n:'Recria fêmea s/ volumoso',d:0,un:'kg',cons:.018,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005},
-  {n:'Boi',d:2,un:'arroba',cons:.023,p0:400,pf:570,gmd:1.6,re:.5,rs:.54,mort:.005},
-  {n:'Novilha',d:2,un:'arroba',cons:.023,p0:320,pf:430,gmd:1.4,re:.5,rs:.52,mort:.005},
-  {n:'Vaca solteira',d:2,un:'arroba',cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005}];
-const PR0={cats:[{cu:6000,venda:320,bp:16},{cu:12.65,venda:340},{cu:12.65,venda:340},{cu:11.33,venda:310},{cu:11.33,venda:310},{cu:340,venda:370},{cu:320,venda:355},{cu:290,venda:320}],dcost:[1.36,1.06,1.14,1.14],base:10};
-const DEF={v:1,at:0,exemplo:true,praca:'GO',dietas:['Recria sem volumoso','Recria com volumoso','Terminação','Vaca parida'],cats:CATS0,
-  pracas:{GO:PR0,SP:Object.assign(JSON.parse(JSON.stringify(PR0)),{base:0})},fixo:2,mm:.03,
-  loteCfg:{leilao:{com:.02,frete:60},direto:{com:0,frete:60}},fut:{preco:0,custo:1.5,desc:[30,0,0,0,0,0,15,30]}};
-const EMB={"v": 1, "at": 1794658895249, "praca": "GO", "dietas": ["Recria sem volumoso", "Recria com volumoso", "Terminação", "Vaca parida"], "cats": [{"n": "Vaca parida + bezerro", "d": 3, "un": "cab", "cons": 0.023, "p0": 390, "pf": 510, "gmd": 1.1, "re": 0.5, "rs": 0.5, "mort": 0.005, "bez": {"p0": 80, "gmd": 1, "cons": 1.5}}, {"n": "Recria macho c/ volumoso", "d": 1, "un": "kg", "cons": 0.025, "p0": 200, "pf": 360, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria macho s/ volumoso", "d": 0, "un": "kg", "cons": 0.018, "p0": 200, "pf": 360, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria fêmea c/ volumoso", "d": 1, "un": "kg", "cons": 0.025, "p0": 180, "pf": 300, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Recria fêmea s/ volumoso", "d": 0, "un": "kg", "cons": 0.018, "p0": 180, "pf": 300, "gmd": 1, "re": 0.5, "rs": 0.5, "mort": 0.005}, {"n": "Boi", "d": 2, "un": "arroba", "cons": 0.023, "p0": 400, "pf": 570, "gmd": 1.6, "re": 0.5, "rs": 0.54, "mort": 0.005}, {"n": "Novilha", "d": 2, "un": "arroba", "cons": 0.023, "p0": 320, "pf": 430, "gmd": 1.35, "re": 0.5, "rs": 0.51, "mort": 0.005}, {"n": "Vaca solteira", "d": 2, "un": "arroba", "cons": 0.023, "p0": 400, "pf": 510, "gmd": 1.2, "re": 0.5, "rs": 0.5, "mort": 0.005}], "pracas": {"GO": {"cats": [{"cu": 6000, "venda": 370, "bp": 16}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 440, "venda": 385, "bp": null}, {"cu": 390, "venda": 390, "bp": null}, {"cu": 350, "venda": 370, "bp": null}], "dcost": [1.36, 1.2, 1.2, 1.2], "base": 10}, "SP": {"cats": [{"cu": 6200, "venda": 370, "bp": 16}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 20, "venda": 450, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 16, "venda": 420, "bp": null}, {"cu": 450, "venda": 380, "bp": null}, {"cu": 400, "venda": 380, "bp": null}, {"cu": 350, "venda": 360, "bp": null}], "dcost": [1.45, 1.25, 1.34, 1.34], "base": 0}}, "fixo": 2, "mm": 0.02, "loteCfg": {"leilao": {"com": 0.02, "frete": 60}, "direto": {"com": 0, "frete": 60}}, "fut": {"preco": 402, "custo": 5, "desc": [30, 0, 0, 0, 0, 0, 15, 30]}, "exemplo": false}; // seus números, gravados no arquivo
-const KEY='lote-offline-v1', clone=o=>JSON.parse(JSON.stringify(o)), isN=x=>typeof x==='number'&&isFinite(x);
-let D, L;
-function valid(o){return o&&o.v===1&&Array.isArray(o.cats)&&o.cats.length===8&&o.pracas&&o.pracas.GO&&o.pracas.SP&&Array.isArray(o.pracas.GO.cats)}
-try{const o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o&&valid(o.D)){D=o.D;L=o.L}}catch(e){}
-if(!D||(EMB&&EMB.at>(D.at||0))){D=clone(EMB||DEF); if(L)L.p0=null}
-if(!L)L={k:5,onde:'leilao',modo:'app',qt:1};
-function save(){try{localStorage.setItem(KEY,JSON.stringify({D,L}))}catch(e){}}
+// ---------------- VALORES DE EXEMPLO (planilha v3) ----------------
+const INS_N=['Milho fubá','Sorgo grão','DDG','Farelo de soja','Farelo de algodão 38%','Torta de algodão','Caroço de algodão','Uréia','Núcleo mineral','Bagaço de cana'];
+const DEF={
+  ins:[[1000,.87,.08,.86,.14],[850,.88,.09,.80,.12],[1400,.90,.34,.88,.35],[2200,.89,.48,.82,.14],[1200,.90,.38,.68,.35],[1150,.92,.28,.72,.40],[1250,.91,.22,.80,.47],[4000,.99,2.81,0,0],[3500,.98,0,0,0],[250,.50,.02,.42,.85]]
+    .map((a,i)=>({n:INS_N[i],rs:a[0],ms:a[1],pb:a[2],ndt:a[3],fdn:a[4]})),
+  area:2,
+  vols:[
+    {n:'Capiaçu puro',orig:'ÁREA',ms:.20,pb:.055,ndt:.37,fdn:.70,rs:.07,part:1,prod:250,perd:.20,ap:0,bp:0,inoc:0},
+    {n:'Capiaçu + milho grão',orig:'ÁREA',ms:.20,pb:.055,ndt:.37,fdn:.70,rs:.07,part:.9,prod:250,perd:.12,ap:.1,bp:0,inoc:0},
+    {n:'Capiaçu + bagaço',orig:'ÁREA',ms:.20,pb:.055,ndt:.37,fdn:.70,rs:.07,part:.8,prod:250,perd:.12,ap:0,bp:.2,inoc:5},
+    {n:'Mombaça + milho grão',orig:'ÁREA',ms:.22,pb:.08,ndt:.50,fdn:.70,rs:.07,part:.9,prod:60,perd:.12,ap:.1,bp:0,inoc:0},
+    {n:'Silagem de milho',orig:'ÁREA',ms:.33,pb:.08,ndt:.63,fdn:.45,rs:.25,part:1,prod:70,perd:.12,ap:0,bp:0,inoc:0},
+    {n:'Bagaço de cana',orig:'COMPRADO',bag:true,part:1,prod:0,perd:.05,ap:0,bp:0,inoc:0}
+  ],
+  dietas:[
+    {n:'Recria sem volumoso',vol:0,vp:0,  sh:[.446,0,.284,0,0,.10,.15,0,.02,0],ov:0},
+    {n:'Recria com volumoso',vol:0,vp:.45,sh:[.09,0,.44,0,0,0,0,0,.02,0],ov:0},
+    {n:'Terminação',vol:0,vp:.18,sh:[.67,0,0,0,0,0,.115,.015,.02,0],ov:0},
+    {n:'Vaca parida',vol:0,vp:.18,sh:[.67,0,0,0,0,0,.115,.015,.02,0],ov:0}
+  ],
+  // un: forma de compra (fixa por categoria) — cab = R$ por conjunto/cabeça · kg = R$ por kg vivo · arroba = R$ por @ (peso vivo ÷ 30)
+  cats:[
+    {n:'Vaca parida + bezerro',d:3,un:'cab',cu:6000,cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005,venda:320,bez:{p0:100,gmd:1,cons:1.5,preco:16}},
+    {n:'Recria macho c/ volumoso',d:1,un:'kg',cu:12.65,cons:.025,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005,venda:340},
+    {n:'Recria macho s/ volumoso',d:0,un:'kg',cu:12.65,cons:.018,p0:200,pf:360,gmd:1,re:.5,rs:.5,mort:.005,venda:340,link:true,src:1},
+    {n:'Recria fêmea c/ volumoso',d:1,un:'kg',cu:11.33,cons:.025,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005,venda:310},
+    {n:'Recria fêmea s/ volumoso',d:0,un:'kg',cu:11.33,cons:.018,p0:180,pf:300,gmd:1,re:.5,rs:.5,mort:.005,venda:310,link:true,src:3},
+    {n:'Boi',d:2,un:'arroba',cu:340,cons:.023,p0:400,pf:570,gmd:1.6,re:.5,rs:.54,mort:.005,venda:370},
+    {n:'Novilha',d:2,un:'arroba',cu:320,cons:.023,p0:320,pf:430,gmd:1.4,re:.5,rs:.52,mort:.005,venda:355},
+    {n:'Vaca solteira',d:2,un:'arroba',cu:290,cons:.023,p0:420,pf:510,gmd:1.1,re:.5,rs:.5,mort:.005,venda:320}
+  ],
+  gen:{capA:160,capF:500,mm:.03,fixo:2},
+  inv:{valor:1000000,cap:'ATUAL',apl:.12,sim:[true,true,true,true,true,true,true,true]},
+  at:0,pAt:0,pBy:null,praca:'GO',reg:{},
+  dcost:null,
+  dsrc:[3,2,1,1],
+  form:{ings:[{id:1,n:'Milho fubá',rs:1000,ms:0.87,pb:0.08,ndt:0.86,fdn:0.14,fdne:0.03},{id:2,n:'Sorgo grão',rs:850,ms:0.88,pb:0.09,ndt:0.8,fdn:0.12,fdne:0.03},{id:3,n:'DDG',rs:1400,ms:0.9,pb:0.34,ndt:0.88,fdn:0.35,fdne:0.04},{id:4,n:'Farelo de soja',rs:2200,ms:0.89,pb:0.48,ndt:0.82,fdn:0.14,fdne:0.03},{id:5,n:'Farelo de algodão 38%',rs:1200,ms:0.9,pb:0.38,ndt:0.68,fdn:0.35,fdne:0.1},{id:6,n:'Torta de algodão',rs:1150,ms:0.92,pb:0.28,ndt:0.72,fdn:0.4,fdne:0.15},{id:7,n:'Caroço de algodão',rs:1250,ms:0.91,pb:0.22,ndt:0.8,fdn:0.47,fdne:0.44},{id:8,n:'Uréia',rs:4000,ms:0.99,pb:2.81,ndt:0,fdn:0,fdne:0},{id:9,n:'Núcleo mineral',rs:3500,ms:0.98,pb:0,ndt:0,fdn:0,fdne:0},{id:10,n:'Bagaço de cana',rs:250,ms:0.5,pb:0.02,ndt:0.42,fdn:0.85,fdne:0.75},{id:11,n:'Silagem de capiaçu (com perdas)',rs:87.5,ms:0.2,pb:0.055,ndt:0.37,fdn:0.7,fdne:0.6},{id:12,n:'Silagem de milho (com perdas)',rs:284,ms:0.33,pb:0.08,ndt:0.63,fdn:0.45,fdne:0.38}],forms:[{id:1,n:'Terminação',alvo:2,sh:{11:.18,1:.67,7:.115,8:.015,9:.02}},{id:2,n:'Recria com volumoso',alvo:1,sh:{11:.45,1:.09,3:.44,9:.02}},{id:3,n:'Recria sem volumoso',alvo:0,sh:{1:.446,3:.284,7:.15,6:.10,9:.02}}],cur:1},
+  loteCfg:{leilao:{com:.02,frete:60},direto:{com:0,frete:60}},
+  fut:{preco:0,base:10,custo:1.5,desc:[30,0,0,0,0,0,15,30]},
+  pd:{cat:[null,null,null,null,null,null,null,null],ins:[null,null,null,null,null,null,null,null,null,null]}
+};
+const DEF_UI={tab:'lote',guideDone:true,sub:'ins',resCap:'ATUAL',vxcCat:5,cur:null,dirty:false,mine:false,cmpA:'',cmpB:'cur'};
+const LINKF=['cu','venda','p0','pf','re','rs','mort'];
+const KEY='confinamento-decisao-v3';
+const clone=o=>JSON.parse(JSON.stringify(o));
+const isN=x=>typeof x==='number'&&isFinite(x);
+const fac=c=>c.un==='kg'?c.p0:c.un==='arroba'?c.p0/30:1;
+const UNL={cab:'R$ por conjunto',kg:'R$ por kg vivo',arroba:'R$ por @ (peso vivo ÷ 30)'};
+const UNS={cab:'',kg:'/kg',arroba:'/@'};
 
-// ---------- formatação ----------
-const F={};[0,1,2].forEach(d=>F[d]=new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}));
-const fin=x=>isFinite(x)?x:0, brl=(x,d=0)=>'R$ '+F[d].format(fin(x)), num=(x,d=0)=>F[d].format(fin(x)), pct=(x,d=1)=>F[d].format(fin(x)*100)+'%';
+// junta dados salvos (de qualquer versão) com o modelo atual
+function normalize(o){const S=normalize0(o); if(!Array.isArray(S.dcost)){const m=calc(S); S.dcost=m.D.map(d=>Math.round(d.rs/10)/100)} return S}
+function normalize0(o){
+  const S=clone(DEF);
+  if(!o||typeof o!=='object')return S;
+  const cp=(dst,src,keys)=>{if(src&&typeof src==='object')keys.forEach(k=>{if(isN(src[k])||typeof src[k]==='string'||typeof src[k]==='boolean')dst[k]=src[k]})};
+  if(Array.isArray(o.ins))o.ins.forEach((x,i)=>S.ins[i]&&cp(S.ins[i],x,['rs','ms','pb','ndt','fdn']));
+  if(isN(o.area))S.area=o.area;
+  if(Array.isArray(o.vols))o.vols.forEach((x,i)=>{if(!S.vols[i])return; cp(S.vols[i],x,S.vols[i].bag?['orig','part','perd']:['orig','ms','pb','ndt','fdn','rs','part','prod','perd','ap','bp','inoc'])});
+  if(Array.isArray(o.dietas))o.dietas.forEach((x,i)=>{if(!S.dietas[i]||!x)return; cp(S.dietas[i],x,['vol','vp','ov']); if(Array.isArray(x.sh))x.sh.forEach((v,j)=>{if(isN(v)&&j<10)S.dietas[i].sh[j]=v})});
+  if(Array.isArray(o.cats))o.cats.forEach((x,k)=>{const c=S.cats[k]; if(!c||!x)return;
+    cp(c,x,['cons','p0','pf','gmd','re','rs','mort','venda','cu']); if(typeof x.link==='boolean'&&'src' in c)c.link=x.link;
+    if(c.bez&&x.bez)cp(c.bez,x.bez,['p0','gmd','cons','preco']);
+    if(!isN(x.cu)&&isN(x.compra))c.cu=Math.round(x.compra/fac(c)*100)/100; // versão antiga: compra em R$ por cabeça
+  });
+  cp(S.gen,o.gen,['capA','capF','mm','fixo']);
+  if(o.inv){cp(S.inv,o.inv,['valor','cap','apl']); if(Array.isArray(o.inv.sim))o.inv.sim.forEach((v,i)=>{if(i<8)S.inv.sim[i]=!!v})}
+  if(isN(o.at))S.at=o.at;
+  if(o.praca==='GO'||o.praca==='SP')S.praca=o.praca;
+  if(o.reg&&typeof o.reg==='object')['GO','SP'].forEach(k=>{const r=o.reg[k]; if(r&&Array.isArray(r.cats)&&Array.isArray(r.dcost))S.reg[k]=JSON.parse(JSON.stringify(r))});
+  delete S.reg[S.praca];
+  if(o.form&&Array.isArray(o.form.ings)&&Array.isArray(o.form.forms)&&o.form.forms.length){
+    const ings=o.form.ings.filter(x=>x&&isN(x.id)).map(x=>({id:x.id,n:typeof x.n==='string'?x.n:'Ingrediente',rs:isN(x.rs)?x.rs:0,ms:isN(x.ms)?x.ms:.9,pb:isN(x.pb)?x.pb:0,ndt:isN(x.ndt)?x.ndt:0,fdn:isN(x.fdn)?x.fdn:0,fdne:isN(x.fdne)?x.fdne:0}));
+    const forms=o.form.forms.filter(x=>x&&isN(x.id)).map(x=>{const sh={}; if(x.sh&&typeof x.sh==='object')Object.keys(x.sh).forEach(k=>{if(isN(x.sh[k]))sh[k]=x.sh[k]}); const n=typeof x.n==='string'?x.n:'Dieta', ln=n.toLowerCase(); const alvo=isN(x.alvo)&&x.alvo>=0&&x.alvo<=3?x.alvo:(/sem vol/.test(ln)?0:/recria/.test(ln)?1:/vaca/.test(ln)?3:2); return {id:x.id,n,alvo,sh}});
+    ings.forEach(x=>{if(x.id===11&&x.n==='Silagem de capiaçu'&&x.rs===70){x.n='Silagem de capiaçu (com perdas)';x.rs=87.5} if(x.id===12&&x.n==='Silagem de milho'&&x.rs===250){x.n='Silagem de milho (com perdas)';x.rs=284}});
+    if(ings.length&&forms.length)S.form={ings,forms,cur:isN(o.form.cur)?o.form.cur:forms[0].id};
+  }
+  if(Array.isArray(o.dsrc)&&o.dsrc.length===4)S.dsrc=o.dsrc.map(v=>isN(v)?v:null); else S.dsrc=[null,null,null,null]; // estado antigo: mantém o custo digitado
+  if(Array.isArray(o.dcost)&&o.dcost.length===4&&o.dcost.every(isN))S.dcost=o.dcost.slice();
+  if(o.loteCfg)['leilao','direto'].forEach(m=>{if(o.loteCfg[m])cp(S.loteCfg[m],o.loteCfg[m],['com','frete'])});
+  if(o.fut){cp(S.fut,o.fut,['preco','base','custo']); if(Array.isArray(o.fut.desc))o.fut.desc.forEach((v,i)=>{if(isN(v)&&i<8)S.fut.desc[i]=v})}
+  const okE=e=>e&&isN(e.at)?{at:e.at,by:typeof e.by==='string'?e.by:null}:null;
+  if(o.pd&&Array.isArray(o.pd.cat)){o.pd.cat.forEach((e,k)=>{if(k<8)S.pd.cat[k]=okE(e)}); if(Array.isArray(o.pd.ins))o.pd.ins.forEach((e,i)=>{if(i<10)S.pd.ins[i]=okE(e)})}
+  else if(isN(o.pAt)&&o.pAt>0){ // versão anterior: uma data só — vale só para o que mudou em relação ao exemplo
+    const e={at:o.pAt,by:typeof o.pBy==='string'?o.pBy:null};
+    S.cats.forEach((c,k)=>{const d=DEF.cats[k]; if(!('src' in d)&&(c.cu!==d.cu||c.venda!==d.venda||(c.bez&&c.bez.preco!==d.bez.preco)))S.pd.cat[k]=Object.assign({},e)});
+    S.ins.forEach((it,i)=>{if(it.rs!==DEF.ins[i].rs)S.pd.ins[i]=Object.assign({},e)});
+  }
+  return S;
+}
+const PNOME={GO:'Goiás',SP:'São Paulo'};
+// a praça ativa vive nos campos normais; a outra fica guardada em S.reg
+function regExtract(s){return {cats:s.cats.map(c=>({cu:c.cu,venda:c.venda,bp:c.bez?c.bez.preco:null})),dcost:s.dcost.slice(),pd:JSON.parse(JSON.stringify(s.pd.cat)),
+  ing:Object.fromEntries(s.form.ings.map(x=>[x.id,x.rs])),base:s.fut.base,forms:JSON.parse(JSON.stringify(s.form.forms)),fcur:s.form.cur,dsrc:s.dsrc.slice()}}
+function regApply(s,r){r.cats.forEach((x,k)=>{const c=s.cats[k]; if(!c||!x)return; if(isN(x.cu))c.cu=x.cu; if(isN(x.venda))c.venda=x.venda; if(c.bez&&isN(x.bp))c.bez.preco=x.bp});
+  r.dcost.forEach((v,j)=>{if(isN(v)&&j<4)s.dcost[j]=v}); if(Array.isArray(r.pd))r.pd.forEach((e,k)=>{if(k<8)s.pd.cat[k]=e&&isN(e.at)?e:null});
+  if(r.ing)s.form.ings.forEach(x=>{if(isN(r.ing[x.id]))x.rs=r.ing[x.id]}); if(isN(r.base))s.fut.base=r.base;
+  if(Array.isArray(r.forms)&&r.forms.length){s.form.forms=JSON.parse(JSON.stringify(r.forms)).filter(x=>x&&isN(x.id)).map(x=>({id:x.id,n:typeof x.n==='string'?x.n:'Dieta',alvo:x.alvo,sh:x.sh&&typeof x.sh==='object'?x.sh:{}})); s.form.cur=isN(r.fcur)?r.fcur:s.form.forms[0].id}
+  if(Array.isArray(r.dsrc)&&r.dsrc.length===4)s.dsrc=r.dsrc.map(v=>isN(v)&&s.form.forms.some(f=>f.id===v)?v:null)}
+function setPraca(p){if(p===S.praca)return; const old=S.praca, cur=regExtract(S);
+  const nxt=S.reg[p]||Object.assign(JSON.parse(JSON.stringify(cur)),{base:p==='SP'?0:10,pd:cur.pd.map(()=>null)});
+  S.reg[old]=cur; regApply(S,nxt); delete S.reg[p]; S.praca=p; syncLinks(S);
+  if(UI.lote)loteFill(UI.lote.k); touch(); saveLocal(); buildAj(); refresh(); if(UI.tab==='form')formBuild(); if(UI.tab==='lote'){loteBuild(); loteCalc()}}
+function stateOnly(s){const o=clone(s); delete o.ui; return o}
+function syncLinks(s){s.cats.forEach(c=>{if(c.link&&isN(c.src)){const f=s.cats[c.src]; LINKF.forEach(k=>c[k]=f[k])}})}
+
+let S, UI;
+
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign(stateOnly(S),{ui:UI})))}catch(e){}}
+let localT=null;
+function touch(){S.at=Date.now(); UI.dirty=true; clearTimeout(localT); localT=setTimeout(saveLocal,300); queueLast()}
+
+// ---------------- FORMATAÇÃO ----------------
+const nf=(d)=>new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const F={};[0,1,2,3,4].forEach(d=>F[d]=nf(d));
+const fin=x=>isFinite(x)?x:0;
+const brl=(x,d=0)=>'R$ '+F[d].format(fin(x));
+const num=(x,d=0)=>F[d].format(fin(x));
+const pct=(x,d=1)=>F[d].format(fin(x)*100)+'%';
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const UNS={cab:'',kg:'/kg',arroba:'/@'}, PNOME={GO:'Goiás',SP:'São Paulo'};
-function parseNum(s){s=String(s).trim().replace(/R\$|%|\s/g,''); if(s==='')return NaN;
-  if(s.indexOf(',')>=0)s=s.replace(/\./g,'').replace(',','.'); else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,''); return parseFloat(s)}
-function showVal(v,t){if(v===''||v==null||!isFinite(v))return ''; if(t==='pct')return F[1].format(v*100).replace(/,0$/,''); if(t==='rs0')return F[0].format(v); return String(Math.round(v*10000)/10000).replace('.',',')}
-function liveMil(el){const old=el.value,pos=el.selectionStart==null?old.length:el.selectionStart,right=old.slice(pos).replace(/\D/g,'').length,dig=old.replace(/\D/g,'').replace(/^0+(?=\d)/,''),fmt=dig?F[0].format(+dig):'';
-  if(fmt===old)return; el.value=fmt; let i=fmt.length,n=0; while(i>0&&n<right){i--; if(/\d/.test(fmt[i]))n++} try{el.setSelectionRange(i,i)}catch(_){}}
+const uprice=(c,x)=>c.un==='cab'?brl(x):brl(x,2)+UNS[c.un];
 const when=t=>t?new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
-const hojeISO=()=>{const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
-const kv=(l,v,cls,strong)=>`<div class="kv${strong?' strong':''}"><span>${l}</span><b class="${cls||''}">${v}</b></div>`;
+function parseNum(s){
+  s=String(s).trim().replace(/R\$|%|\s/g,'');
+  if(s==='')return NaN;
+  if(s.indexOf(',')>=0){s=s.replace(/\./g,'').replace(',','.')}
+  else if(/^-?\d{1,3}(\.\d{3})+$/.test(s)){s=s.replace(/\./g,'')}
+  return parseFloat(s);
+}
+function showVal(v,t){
+  if(v===''||v===null||v===undefined||!isFinite(v))return '';
+  if(t==='pct')return F[1].format(v*100).replace(/,0$/,'');
+  if(t==='rs0')return F[0].format(v);
+  return String(Math.round(v*10000)/10000).replace('.',',');
+}
+// coloca o ponto de milhar enquanto digita (5000000 -> 5.000.000), mantendo o cursor no lugar
+function liveMil(el){
+  const old=el.value, pos=el.selectionStart==null?old.length:el.selectionStart;
+  const right=old.slice(pos).replace(/\D/g,'').length;
+  const dig=old.replace(/\D/g,'').replace(/^0+(?=\d)/,'');
+  const fmt=dig?F[0].format(+dig):'';
+  if(fmt===old)return; el.value=fmt;
+  let i=fmt.length, n=0; while(i>0&&n<right){i--; if(/\d/.test(fmt[i]))n++}
+  try{el.setSelectionRange(i,i)}catch(_){}
+}
+function getP(p){return p.split('.').reduce((o,k)=>o==null?o:o[k],S)}
+function setP(p,v){const ks=p.split('.');let o=S;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v}
+
+// ---------------- MODELO ----------------
+function calc(S){
+  const D_IDX=d=>S.dietas.indexOf(d);
+  syncLinks(S);
+  const g=S.gen, I=S.ins.map(i=>Object.assign({},i,{rst:i.ms>0?i.rs/i.ms:0}));
+  const mil=I[0], bag=I[9];
+  const V=S.vols.map(v=>{
+    const ms=v.bag?bag.ms:v.ms, pb=v.bag?bag.pb:v.pb, ndt=v.bag?bag.ndt:v.ndt, fdn=v.bag?bag.fdn:v.fdn, rs=v.bag?bag.rs/1000:v.rs;
+    const sms=v.part*ms+v.ap*mil.ms+v.bp*bag.ms;
+    const pf=sms?v.part*ms/sms:0, pa=sms?v.ap*mil.ms/sms:0, pbg=sms?v.bp*bag.ms/sms:0;
+    const rst=sms?(v.part*rs*1000+v.ap*mil.rs+v.bp*bag.rs+v.inoc)/sms:0;
+    const comp=v.orig==='COMPRADO';
+    const ha=comp||!pf?0:v.prod*ms/pf*(1-v.perd);
+    const k=comp||!v.part?0:S.area*v.prod/v.part;
+    return {n:v.n,orig:v.orig,ms,pb,ndt,fdn,rs,sms,pf,pa,pbg,
+      spb:pf*pb+pa*mil.pb+pbg*bag.pb, sndt:pf*ndt+pa*mil.ndt+pbg*bag.ndt, sfdn:pf*fdn+pa*mil.fdn+pbg*bag.fdn,
+      rst, rsu:rst/(1-v.perd), ha, util:ha*S.area, adit:k*(v.ap+v.bp), adrs:k*(v.ap*mil.rs+v.bp*bag.rs+v.inoc)};
+  });
+  const D=S.dietas.map(d=>{
+    const vo=V[d.vol]; let ic=0,ipb=0,indt=0,ifdn=0,sum=d.vp;
+    d.sh.forEach((s,i)=>{ic+=s*I[i].rst;ipb+=s*I[i].pb;indt+=s*I[i].ndt;ifdn+=s*I[i].fdn;sum+=s});
+    const calcRs=d.vp*vo.rsu+ic, c1=1-d.vp;
+    return {n:d.n,vp:d.vp,vol:d.vol,calc:calcRs,rs:dietCost(S,D_IDX(d),d.ov>0?d.ov:calcRs),pb:d.vp*vo.spb+ipb,ndt:d.vp*vo.sndt+indt,fdn:d.vp*vo.sfdn+ifdn,
+      conc:c1>0?ic/c1:0,cndt:c1>0?indt/c1:0,cfdn:c1>0?ifdn/c1:0,vfdn:d.vp*vo.sfdn,sum};
+  });
+  const R=S.cats.map((c,k)=>{
+    const d=D[c.d], bz=c.bez||{p0:0,gmd:0,cons:0,preco:0}, fc=fac(c), compra=c.cu*fc;
+    const dias=c.gmd>0?Math.ceil((c.pf-c.p0)/c.gmd-1e-9):0;
+    const cons=c.cons*(c.p0+c.pf)/2+bz.cons, kg=d.rs/1000;
+    const ddia=cons*kg, tdia=ddia+g.fixo, oper=tdia*dias, ctot=compra+oper;
+    const arr=(c.pf*c.rs-c.p0*c.re)/15+bz.gmd*dias/30;
+    const rec=(c.pf*c.rs/15*c.venda+(bz.p0+bz.gmd*dias)*bz.preco)*(1-c.mort);
+    const luc=rec-ctot, mm=ctot>0&&dias>0?Math.pow(rec/ctot,30/dias)-1:0;
+    const pmax=dias>0?rec/Math.pow(1+g.mm,dias/30)-oper:0;
+    const giros=dias>0?365/dias:0, vkg=cons*d.vp, haV=V[d.vol].ha;
+    return {n:c.n,k,un:c.un,cu:c.cu,fc,diet:d.n,vol:d.vp>0?V[d.vol].n:'sem volumoso',kg,dias,cons,ddia,tdia,oper,compra,ctot,arr,carr:arr?oper/arr:0,rec,luc,mm,
+      pmax,pmaxU:fc?pmax/fc:0,folga:pmax-compra,giros,
+      la:[luc*g.capA*giros,luc*g.capF*giros],capg:[ctot*g.capA,ctot*g.capF],vkg,vt:[vkg*365*g.capA/1000,vkg*365*g.capF/1000],
+      areaN:[haV>0?vkg*365*g.capA/1000/haV:0,haV>0?vkg*365*g.capF/1000/haV:0],arrDia:dias?arr/dias:0};
+  });
+  const X=S.cats.map((c,k)=>{const d=D[c.d], r=R[k];
+    return V.map((v)=>{
+      let inc=0,mx=0,used=0,cost;
+      if(d.vp===0){cost=d.rs/1000}
+      else{inc=v.sfdn>0?Math.min(.9,d.vfdn/v.sfdn):.9; mx=v.sndt>=d.cndt?1:Math.max(0,(d.cndt-d.ndt)/(d.cndt-v.sndt)); used=Math.min(inc,mx); cost=(used*v.rsu+(1-used)*d.conc)/1000}
+      const h=r.cons*cost+g.fixo, ct=r.compra+h*r.dias, luc=r.rec-ct;
+      return {inc,mx,used,cost,h,carr:r.arr?h*r.dias/r.arr:0,luc,kg:r.cons*used};
+    });
+  });
+  const CAPS=[0,1,2], IBAG=5, COUNTER={1:2,3:4};
+  const U=S.cats.map((c,k)=>{
+    let alt=X[k][IBAG].h; if(k in COUNTER) alt=Math.min(alt,R[COUNTER[k]].tdia);
+    const o=CAPS.map(s=>{const x=X[k][s]; if(x.kg===0)return null; const ek=(alt-x.h)/x.kg; return {ek,ea:ek*V[s].util*1000,heads:V[s].util*1000/(x.kg*365)}});
+    const v0=V[0], maxCost=o[0]?(v0.rsu/1000+o[0].ek)*v0.ms*(1-S.vols[0].perd):null;
+    return {alt,o,maxCost};
+  });
+  const C=S.inv.valor, VG=Infinity; // sem limite de vagas: só o dinheiro manda
+  const IT=R.map((r,k)=>{const on=!!S.inv.sim[k], low=r.mm<g.mm-1e-12, ok=on&&!low; const pv=r.luc*r.giros;
+    const xs=r.ctot>0?Math.max(0,Math.min(Math.floor(C/r.ctot),VG)):0, x=ok?xs:0;
+    return {on,low,ok,c:r.ctot,p:pv,mm:r.mm,x,cap:x*r.ctot,lucro:x*pv,xs,caps:xs*r.ctot,lucros:xs*pv}});
+  const opts=[];
+  IT.forEach((t,a)=>opts.push({a,b:-1,xa:t.x,xb:0,lucro:t.lucro,cap:t.cap}));
+  for(let a=0;a<IT.length;a++)for(let b=a+1;b<IT.length;b++){
+    const A=IT[a],B=IT[b]; let xa=0,xb=0;
+    if(isFinite(VG)&&A.ok&&B.ok&&A.c!==B.c){const x=(C-B.c*VG)/(A.c-B.c); if(x>=0&&VG-x>=0){xa=Math.floor(x+1e-9);xb=Math.floor(VG-x+1e-9)}}
+    opts.push({a,b,xa,xb,lucro:xa*A.p+xb*B.p,cap:xa*A.c+xb*B.c});
+  }
+  let bi=0; opts.forEach((o,i)=>{if(o.lucro>opts[bi].lucro)bi=i});
+  const best=opts[bi];
+  const mmOf=o=>{const ca=o.xa*IT[o.a].c, cb=o.b>=0?o.xb*IT[o.b].c:0; return ca+cb>0?(ca*IT[o.a].mm+(o.b>=0?cb*IT[o.b].mm:0))/(ca+cb):0};
+  best.mm=mmOf(best);
+  let bmI=-1; IT.forEach((t,k)=>{if(t.ok&&t.x>0&&t.lucro>0&&(bmI<0||t.mm>IT[bmI].mm))bmI=k});
+  const bestM=bmI<0?null:{a:bmI,b:-1,xa:IT[bmI].x,xb:0,lucro:IT[bmI].lucro,cap:IT[bmI].cap,mm:IT[bmI].mm};
+  best.txt=best.lucro<=0?'Nenhuma operação dá lucro':`${num(best.xa)} cab. de ${S.cats[best.a].n}`+(best.b>=0&&best.xb>0?` + ${num(best.xb)} cab. de ${S.cats[best.b].n}`:'');
+  return {I,V,D,R,X,U,IT,best,bestM,VG,C};
+}
+
+// ---------------- CAMPOS ----------------
+function field(label,path,t,unit,attrs){
+  const u=unit?`<i>${unit}</i>`:'';
+  return `<label class="f"><span>${label}</span><div class="inwrap"><input class="n" data-k="${path}" data-t="${t}" inputmode="decimal" ${attrs||''}>${u}</div></label>`;
+}
+function fillInputs(root){
+  (root||document).querySelectorAll('input[data-k]').forEach(el=>{if(el!==document.activeElement)el.value=showVal(getP(el.dataset.k),el.dataset.t)});
+  (root||document).querySelectorAll('select[data-k]').forEach(el=>{el.value=String(getP(el.dataset.k))});
+}
+document.addEventListener('input',e=>{
+  const el=e.target; if(!el.dataset||!el.dataset.k)return;
+  if(el.dataset.t==='rs0')liveMil(el);
+  if(el.tagName==='SELECT'){const v=el.dataset.int?parseInt(el.value,10):el.value; setP(el.dataset.k,v)}
+  else{let v=parseNum(el.value); if(isNaN(v)){if(el.value.trim()===''&&/\.(ov|sh\.\d+|ap|bp|inoc|vp|mort)$/.test(el.dataset.k)){v=0}else return} if(el.dataset.t==='pct')v=v/100; setP(el.dataset.k,v)}
+  {const m1=el.dataset.k.match(/^cats\.(\d+)\.(cu|venda|bez\.preco)$/), m2=el.dataset.k.match(/^ins\.(\d+)\.rs$/), e={at:Date.now(),by:UID||null};
+   if(m1)S.pd.cat[+m1[1]]=e; if(m2)S.pd.ins[+m2[1]]=e;}
+  touch(); refresh();
+});
+document.addEventListener('focusout',e=>{const el=e.target; if(el.dataset&&el.dataset.k&&el.tagName==='INPUT')el.value=showVal(getP(el.dataset.k),el.dataset.t)});
+document.addEventListener('focusin',e=>{const el=e.target; if(el.tagName==='INPUT'&&el.dataset.k)setTimeout(()=>{try{el.select()}catch(_){}} ,0)});
+document.addEventListener('change',e=>{const el=e.target; if(el.dataset&&el.dataset.link!==undefined){S.cats[+el.dataset.link].link=el.checked; touch(); refresh()}});
+
+// ---------------- MONTAGEM (uma vez) ----------------
+const CU_SHORT={cab:'Compra (R$ o conjunto)',kg:'Compra (R$/kg vivo)',arroba:'Compra (R$/@)'};
+function buildAj(){
+  // PREÇOS — animais
+  let h='';
+  S.cats.forEach((c,k)=>{
+    const L=('src' in c)?`data-lkc="${k}"`:'';
+    const lk=('src' in c)?`<div class="lk"><label class="switch"><span>Mesmos preços e pesos da <b>${esc(S.cats[c.src].n)}</b></span><input type="checkbox" data-link="${k}"></label></div>`:'';
+    h+=`<div class="card pc"><div class="pch"><b>${esc(c.n)}</b><span id="pcTag${k}"></span></div><div class="pdl" id="pdc${k}"></div>${lk}
+      <div class="grid2">${field(CU_SHORT[c.un],`cats.${k}.cu`,c.un==='cab'?'rs0':'num','R$'+UNS[c.un],L)}${field('Venda (R$/@)',`cats.${k}.venda`,'num','R$/@',L)}</div>
+      ${c.bez?field('Venda do bezerro (R$/kg vivo)',`cats.${k}.bez.preco`,'num','R$/kg'):''}
+      <div id="pcOut${k}"></div></div>`;
+  });
+  document.getElementById('preCats').innerHTML=h;
+  preDieBuild();
+
+  // CONFIG — animais (dados técnicos)
+  h=`<p class="hint">Pesos, ganho e consumo de cada categoria. Os preços ficam na tela <b>Preços</b>.</p>`;
+  S.cats.forEach((c,k)=>{
+    const L=('src' in c)?`data-lkc="${k}"`:'';
+    const note=('src' in c)?`<p class="hint" id="lkNote${k}"></p>`:'';
+    const bez=c.bez?`<h3>Bezerro</h3><div class="grid2">${field('Peso de entrada',`cats.${k}.bez.p0`,'num','kg')}${field('GMD do bezerro',`cats.${k}.bez.gmd`,'num','kg')}${field('Consumo no cocho (kg MS/dia)',`cats.${k}.bez.cons`,'num','kg')}</div>`:'';
+    h+=`<details class="it"><summary><span class="nm">${esc(c.n)}</span><span class="sm" id="cfSm${k}"></span></summary><div class="body">
+      ${note}<div class="fixo"><span>Dieta (fixa)</span><b>${esc(S.dietas[c.d].n)}</b></div>
+      <div class="grid2">
+      ${field('Peso de entrada',`cats.${k}.p0`,'num','kg',L)}${field('Peso de saída',`cats.${k}.pf`,'num','kg',L)}
+      ${field('GMD (kg/dia)',`cats.${k}.gmd`,'num','kg')}${field('Consumo (% do peso vivo)',`cats.${k}.cons`,'pct','%')}
+      ${field('Rendimento na entrada',`cats.${k}.re`,'pct','%',L)}${field('Rendimento na saída',`cats.${k}.rs`,'pct','%',L)}
+      ${field('Mortalidade',`cats.${k}.mort`,'pct','%',L)}</div>${bez}</div></details>`;
+  });
+  document.getElementById('cf-cat').innerHTML=h;
+
+  // CONFIG — gerais
+  document.getElementById('cf-ger').innerHTML=`<div class="card"><div class="grid2">
+      ${field('Custo fixo por cabeça/dia','gen.fixo','num','R$')}</div>
+      <p class="hint">O custo fixo entra no custo de cada dia de cocho. A margem mínima fica na tela Decidir.</p></div>
+    <div class="card"><button class="btn warn" id="btnReset" style="margin:0">Voltar aos valores de exemplo</button><p class="hint hide" id="resetAsk">Toque de novo para confirmar. Isso troca o que está na tela pelos exemplos (as simulações salvas não mudam).</p></div>`;
+  let armed=false;
+  document.getElementById('btnReset').onclick=()=>{
+    if(!armed){armed=true;document.getElementById('resetAsk').classList.remove('hide');document.getElementById('btnReset').textContent='Confirmar: voltar aos exemplos';return}
+    S=normalize(null); UI.cur=null; touch(); buildAj(); refresh(); armed=false;
+  };
+
+  // CONFIG — ajuda
+  document.getElementById('cf-aju').innerHTML=`<div class="card"><h3 style="margin-top:0">Como usar</h3><ol class="steps">
+    <li><b>Preços</b>: atualize compra e venda dos animais e o custo da dieta por kg de MS.</li>
+    <li><b>Decidir</b>: digite quanto tem para investir e veja a melhor opção e as categorias da melhor para a pior.</li>
+    <li><b>Salvas</b>: dê um nome e salve a simulação para a família ver e comparar.</li>
+    <li><b>Dieta</b>: monte uma dieta na MS, veja PB, NDT, FDN e o custo por kg de MS e mande esse custo para a tela Preços.</li>
+    <li><b>Lote</b>: avalie um lote do leilão — peso, preço e, se quiser, pelo mercado futuro.</li>
+    <li><b>Configurações</b> (engrenagem): pesos, ganho, consumo e custo fixo — mexa só quando mudar.</li></ol></div>
+    <div class="card"><h3 style="margin-top:0">Forma de compra</h3>
+    <div class="kv"><span>Recria (macho e fêmea)</span><b>R$ por kg vivo</b></div><div class="kv"><span>Boi, novilha, vaca solteira</span><b>R$ por @ (peso ÷ 30)</b></div>
+    <div class="kv"><span>Vaca parida</span><b>R$ por conjunto</b></div><div class="kv"><span>Venda (todas)</span><b>R$ por @</b></div></div>
+    <div class="card"><h3 style="margin-top:0">Palavras usadas</h3>
+    <div class="kv"><span>MS</span><b>matéria seca</b></div>
+    <div class="kv"><span>GMD</span><b>ganho de peso por dia</b></div><div class="kv"><span>Margem ao mês</span><b>quanto rende o dinheiro por mês</b></div>
+    <div class="kv"><span>Giros por ano</span><b>quantos lotes cabem no ano</b></div><div class="kv"><span>Pode pagar até</span><b>o mais caro que ainda dá a margem mínima</b></div></div>
+    <div class="card"><p class="hint" style="margin:0">Para colocar na tela inicial: no iPhone, abra no Safari → Compartilhar → “Adicionar à Tela de Início”. No Android, abra no Chrome → menu ⋮ → “Adicionar à tela inicial”. O que você digita fica guardado sozinho na sua conta.</p></div>`;
+  fillInputs();
+}
+
+function preDieBuild(){
+  document.getElementById('preDie').innerHTML=[2,3,1,0].map(j=>{const quem=S.cats.filter(c=>c.d===j).map(c=>esc(c.n)).join(', '), f=dietSrc(S,j);
+    const sel=`<select class="n dsel" data-dsrc="${j}">${S.form.forms.map(x=>`<option value="${x.id}" ${f&&f.id===x.id?'selected':''}>Da dieta “${esc(x.n)}”</option>`).join('')}<option value="man" ${f?'':'selected'}>Digitar o custo</option></select>`;
+    return `<div class="dierow"><div class="ingtop"><span class="nm">${esc(S.dietas[j].n)}<span class="mini" style="display:block;font-weight:400">${quem}</span></span>
+      ${f?`<b class="dval" id="dval${j}"></b>`:`<span class="inwrap ingin"><input class="n" data-k="dcost.${j}" data-t="num" inputmode="decimal"><i>R$/kg</i></span>`}</div>${sel}</div>`}).join('');
+  fillInputs(document.getElementById('preDie'));
+}
+// ---------------- TELAS ----------------
+function kv(l,v,cls,strong){return `<div class="kv${strong?' strong':''}"><span>${l}</span><b class="${cls||''}">${v}</b></div>`}
 const sg=x=>x<0?'bad':'good';
+const perHead=(c,r)=>r.un==='kg'?num(c.p0)+' kg':num(r.fc,1)+' @';
+const kmil=x=>Math.abs(x)>=1e6?'R$ '+F[1].format(x/1e6)+' mi':Math.abs(x)>=1e3?'R$ '+F[0].format(x/1e3)+' mil':brl(x);
+const TIPS={
+  minima:'A margem mínima é quanto você quer que o dinheiro renda por mês. Categoria que rende menos que isso não entra na resposta.',
+  margem:'Quanto o dinheiro investido rende por mês, já descontada a compra e o custo do cocho. Para comparar: 1% ao mês dá cerca de 12,7% ao ano.',
+  ano:'Lucro de um lote (comprar, engordar e vender) vezes quantos lotes cabem no ano, com o mesmo dinheiro voltando para o lote seguinte e o cocho sempre cheio.',
+  lote:'Um lote = comprar, engordar e vender. Lotes por ano = 365 dias ÷ dias de cocho.',
+  pmax:'O preço mais caro que você pode pagar no animal e ainda ganhar a margem mínima que escolheu. Pagou menos que isso, sobra margem; pagou mais, a margem fica abaixo.',
+  carr:'Quanto custa no cocho (dieta + custo fixo) cada @ que o animal ganha, sem contar a compra. Se for menor que o preço de venda da @, a engorda paga.'};
+const ageDays=t=>(Date.now()-t)/864e5;
+function pdOf(type,k){if(type==='cat'){const c=S.cats[k]; if(c.link&&('src' in c))return S.pd.cat[c.src]} return S.pd[type][k]}
+function badge(e){if(!e)return '<span class="pdb ex">exemplo</span>';
+  const d=Math.floor(ageDays(e.at)), t=d<1?'atualizado hoje':d<2?'atualizado ontem':`há ${d} dias`;
+  return `<span class="pdb ${d>7?'old':'fresh'}">${t}</span>`}
+const Q=k=>`<button class="q" data-q="${k}" type="button" aria-label="O que é isso?">?</button>`;
+function pmaxBlock(c,r){
+  if(r.un==='cab')return kv(`Pode pagar até ${Q('pmax')}`,brl(r.pmax)+' o conjunto','',true)+kv(r.folga>=0?'Sobra':'Acima do máximo',brl(Math.abs(r.folga)),sg(r.folga));
+  const d=r.pmaxU-r.cu;
+  return kv(`Pode pagar até ${Q('pmax')}`,`${uprice(c,r.pmaxU)}<div class="mini">= ${brl(r.pmax)} por cabeça</div>`,'',true)+
+    kv(d>=0?'Sobra':'Acima do máximo',`${uprice(c,Math.abs(d))}<div class="mini">= ${brl(Math.abs(r.folga))} por cabeça</div>`,sg(d));
+}
+let M=null;
+function refresh(){
+  document.querySelectorAll('#segPraca button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.praca)); document.querySelectorAll('.pnm').forEach(e=>e.textContent=PNOME[S.praca]);
+  M=calc(S); const g=S.gen, ci=S.inv.cap==='ATUAL'?0:1;
+  // ---- DECIDIR
+  const b=M.best, bm=M.bestM, apl=S.inv.apl;
+  const optTxt=o=>`${num(o.xa)} cabeças de ${esc(S.cats[o.a].n)}`+(o.b>=0&&o.xb>0?` + ${num(o.xb)} cabeças de ${esc(S.cats[o.b].n)}`:'');
+  const extra=o=>o.lucro+(M.C-o.cap)*apl-M.C*apl;
+  // conta do lote: lucro de um lote × lotes no ano
+  const loteTxt=o=>{const parts=[[o.a,o.xa]]; if(o.b>=0&&o.xb>0)parts.push([o.b,o.xb]);
+    return parts.map(([k,x])=>{const r=M.R[k]; return `${parts.length>1?esc(S.cats[k].n)+': ':''}${kmil(x*r.luc)} por lote × ${num(r.giros,1)} lotes no ano = <b>${kmil(x*r.luc*r.giros)}</b>`}).join('<br>')};
+  const more=o=>`<details class="more"><summary>Ver mais</summary>${kv('Dinheiro usado',brl(o.cap))}${kv('Cabeças',num(o.xa+o.xb))}${kv(`A mais do que deixar tudo na aplicação (${pct(apl,0)} ao ano)`,brl(extra(o)),sg(extra(o)))}</details>`;
+  let hero;
+  if(b.lucro<=0){
+    const top=Math.max(...M.R.filter((r,k)=>S.inv.sim[k]).map(r=>r.mm));
+    hero=`<div class="mini">RESPOSTA</div><div class="big bad">Com esses preços nenhuma categoria dá ${pct(g.mm)} ao mês.</div>`+
+      `<p class="hint" style="margin:0">A melhor está em ${pct(isFinite(top)?top:0,2)} ao mês. Baixe a margem mínima, reveja os preços ou deixe o dinheiro na aplicação.</p>`;
+  }else{
+    const same=bm&&bm.a===b.a&&(b.b<0||b.xb===0)&&bm.xa===b.xa;
+    hero=`<div class="mini">${same?'RESPOSTA — MAIS LUCRO E MAIOR MARGEM':'MAIS LUCRO NO ANO'}</div><div class="big">${optTxt(b)}</div>`+
+      kv(`Lucro no ano ${Q('ano')}`,brl(b.lucro),'good',true)+`<p class="lote">${loteTxt(b)}</p>`+
+      kv(`Margem ao mês ${Q('margem')}`,pct(b.mm,2),'',true)+kv('Dinheiro que sobra sem investir',brl(M.C-b.cap))+more(b);
+    if(bm&&!same){
+      hero+=`<div class="alt"><div class="mini">MAIOR MARGEM</div><div class="big2">${optTxt(bm)}</div>`+
+        kv('Lucro no ano',brl(bm.lucro))+`<p class="lote">${loteTxt(bm)}</p>`+kv('Margem ao mês',pct(bm.mm,2),'good',true)+kv('Dinheiro que sobra sem investir',brl(M.C-bm.cap))+more(bm)+
+        `<p class="hint" style="margin:8px 0 0">A primeira dá <b>${brl(b.lucro-bm.lucro)}</b> a mais de lucro no ano. A segunda rende <b>${F[2].format((bm.mm-b.mm)*100)} ponto(s)</b> a mais por mês e deixa mais dinheiro livre.</p></div>`;
+    }
+  }
+  document.getElementById('invHero').innerHTML=hero;
+  document.getElementById('rankHint').innerHTML=`Lucro no ano se colocar todo o seu dinheiro (${brl(M.C)}) só nessa categoria. Toque numa categoria para ver se a compra está boa.`;
+  const cl=document.getElementById('catList'), openSet=new Set([...cl.querySelectorAll('details[open]')].map(d=>d.dataset.k));
+  const ord=M.R.slice().sort((x,y)=>M.IT[y.k].lucros-M.IT[x.k].lucros);
+  const card=(r,pos)=>{const c=S.cats[r.k], t=M.IT[r.k];
+    const compraTxt=r.un==='cab'?brl(r.compra):`${brl(r.compra)}<div class="mini">${uprice(c,r.cu)} × ${perHead(c,r)}</div>`;
+    const pago=r.un==='cab'?brl(r.compra)+' o conjunto':uprice(c,r.cu), maxp=r.un==='cab'?brl(r.pmax)+' o conjunto':uprice(c,r.pmaxU);
+    let verd;
+    if(!t.on)verd=`<div class="verd no"><b>Indisponível.</b> Você marcou que não tem esse animal para comprar agora — ele fica fora da resposta.</div>`;
+    else if(r.luc<=0)verd=`<div class="verd no"><b>Dá prejuízo.</b> Cada cabeça perde ${brl(-r.luc)}. Você paga ${pago}; para ter ${pct(g.mm)} ao mês, pague no máximo ${maxp}.</div>`;
+    else if(r.mm<g.mm)verd=`<div class="verd warn"><b>Dá lucro, mas abaixo da margem.</b> Rende ${pct(r.mm,2)} ao mês e você quer ${pct(g.mm)}. Você paga ${pago}; para chegar lá, pague no máximo ${maxp}.</div>`;
+    else verd=`<div class="verd ok"><b>Compra boa.</b> Você paga ${pago} e pode pagar até ${maxp}. Cada cabeça deixa ${brl(r.luc)} de lucro em ${num(r.dias)} dias (${pct(r.mm,2)} ao mês).</div>`;
+    return `<details class="it rk" data-k="${r.k}" ${openSet.has(String(r.k))?'open':''}><summary>${pos?`<span class="pos">${pos}</span>`:''}<span class="nm">${esc(r.n)}${!t.on?' <span class="tagb">indisponível</span>':''}<span class="mini" style="display:block;font-weight:400">${kmil(t.lucros)}/ano com ${num(t.xs)} cab. · ${brl(r.luc)}/cab</span></span><span class="sm"><span class="${r.mm<g.mm?'tagb':'tagg'}">${pct(r.mm,2)}/mês</span></span></summary><div class="body">
+    ${verd}
+    <label class="switch"><span>Tenho esse animal disponível para comprar</span><input type="checkbox" data-sim="${r.k}" ${t.on?'checked':''}></label>
+    <details class="more"><summary>Ver as contas</summary>
+    <h3>Sozinha com o seu dinheiro</h3>
+    ${kv('Cabeças',num(t.xs))}${kv('Dinheiro usado',brl(t.caps))}${kv(`Lucro no ano ${Q('ano')}`,brl(t.lucros),sg(t.lucros),true)}
+    <h3>Por cabeça</h3>
+    ${kv('Compra',compraTxt)}${kv('Custo no cocho',`${brl(r.oper)}<div class="mini">${num(r.dias)} dias × ${brl(r.tdia,2)}/dia</div>`)}${kv('Custo total',brl(r.ctot),'',true)}
+    ${kv('Receita na venda',brl(r.rec))}${kv('Lucro por cabeça',brl(r.luc),sg(r.luc),true)}${kv(`Margem ao mês ${Q('margem')}`,pct(r.mm,2),r.mm<g.mm?'bad':'good',true)}
+    ${pmaxBlock(c,r)}
+    <h3>Mais detalhes</h3>
+    ${kv('Dieta',esc(r.diet))}${kv('Custo da dieta',brl(r.kg,2)+'/kg MS')}${kv('Consumo',num(r.cons,1)+' kg MS/dia')}
+    ${kv('@ produzidas',num(r.arr,2))}${kv(`Custo da @ produzida ${Q('carr')}`,brl(r.carr,2))}${kv(`Lotes por ano ${Q('lote')}`,num(r.giros,1))}
+    </details>
+  </div></details>`};
+  const pass=ord.filter(r=>M.IT[r.k].ok), fail=ord.filter(r=>!M.IT[r.k].ok);
+  const failOpen=cl.querySelector('details.grp')&&cl.querySelector('details.grp').open;
+  cl.innerHTML=(pass.length?pass.map((r,i)=>card(r,i+1)).join(''):`<p class="hint">Nenhuma categoria passa da margem mínima de ${pct(g.mm)}.</p>`)+
+    (fail.length?`<details class="grp" ${failOpen?'open':''}><summary>Abaixo da margem mínima ou indisponíveis (${fail.length})</summary>${fail.map(r=>card(r,0)).join('')}</details>`:'');
+  // preços velhos?
+  const pa=document.getElementById('priceAlert'), used=new Set();
+  if(b.lucro>0){used.add(b.a); if(b.b>=0&&b.xb>0)used.add(b.b)} if(bm)used.add(bm.a);
+  const stale=[...used].map(k=>{const e=pdOf('cat',k); return !e?`${esc(S.cats[k].n)} (preço de exemplo)`:ageDays(e.at)>7?`${esc(S.cats[k].n)} (há ${num(Math.floor(ageDays(e.at)))} dias)`:null}).filter(Boolean);
+  pa.innerHTML=stale.length?`<div class="alert">Confira o preço antes de decidir: <b>${stale.join(', ')}</b>. Atualize em <a href="#" data-go="pre">Preços</a>.</div>`:'';
+  // guia de primeira vez
+  document.getElementById('guide').classList.toggle('hide',!!UI.guideDone);
+  const cs=UI.cur&&SIMS.find(s=>s.id===UI.cur);
+  document.getElementById('curInfo').innerHTML=cs?`Simulação aberta: <b>${esc(cs.name)}</b>${UI.dirty?' (com alterações não salvas)':''}`:'';
+
+  // ---- PREÇOS
+  document.getElementById('mmTxt').textContent=pct(g.mm);
+  [0,1,2,3].forEach(j=>{const el=document.getElementById('dval'+j); if(el)el.innerHTML=`${brl(M.D[j].rs/1000,2)}<span class="mini">/kg MS</span>`});
+  {let old=0,ex=0; const all=S.cats.map((c,k)=>('src' in c)&&c.link?undefined:S.pd.cat[k]).filter(e=>e!==undefined);
+   all.forEach(e=>{if(!e)ex++; else if(ageDays(e.at)>7)old++});
+   document.getElementById('pDate').innerHTML=!old&&!ex?'<span class="pdb fresh">Todos os preços em dia</span>':
+     [old?`<span class="pdb old">${old} desatualizado${old>1?'s':''}</span>`:'',ex?`<span class="pdb ex">${ex} de exemplo</span>`:''].join(' ');}
+  S.cats.forEach((c,k)=>{const el=document.getElementById('pdc'+k); if(!el)return;
+    if(c.link&&('src' in c)){el.innerHTML=badge(pdOf('cat',k))+` <span class="mini">mesma data da ${esc(S.cats[c.src].n)}</span>`;return}
+    el.innerHTML=badge(S.pd.cat[k])+` <button class="conf" data-conf="cat:${k}" type="button">Conferi, está igual</button>`});
+  M.R.forEach((r,k)=>{const c=S.cats[k];
+    const tg=document.getElementById('pcTag'+k); if(tg)tg.innerHTML=`<span class="${r.mm<g.mm?'tagb':'tagg'}">${pct(r.mm,2)}/mês</span>`;
+    const o=document.getElementById('pcOut'+k); if(!o)return;
+    o.innerHTML=(r.un==='cab'?'':`<p class="mini" style="margin:-2px 0 6px">= ${brl(r.compra)} por cabeça (${perHead(c,r)})</p>`)+`<div class="pmax ${r.folga>=0?'ok':'no'}">${pmaxBlock(c,r)}</div>`;
+  });
+
+  // ---- CONFIG: saídas
+  M.R.forEach((r,k)=>{const a=document.getElementById('cfSm'+k); if(a)a.textContent=`${num(S.cats[k].p0)}→${num(S.cats[k].pf)} kg · ${num(r.dias)} dias`;
+    const n=document.getElementById('lkNote'+k); if(n)n.innerHTML=S.cats[k].link?`Pesos, rendimentos e mortalidade iguais aos da <b>${esc(S.cats[S.cats[k].src].n)}</b> (para mudar, desligue em Preços).`:''});
+  document.querySelectorAll('input[data-link]').forEach(el=>el.checked=!!S.cats[+el.dataset.link].link);
+  document.querySelectorAll('input[data-lkc]').forEach(el=>el.disabled=!!S.cats[+el.dataset.lkc].link);
+  fillInputs();
+  if(typeof formCalc==='function')formCalc();
+  renderSims();
+}
+document.getElementById('catList').addEventListener('change',e=>{const k=e.target.dataset&&e.target.dataset.sim; if(k!==undefined){S.inv.sim[+k]=e.target.checked;touch();refresh()}});
+
+// ---------------- CONTA: última simulação + simulações salvas ----------------
+let DB=null, USER=null, UID=null, OWNER=false, ACC='loading', SIMS=[], OFICIAL=null, NAMES={}, LASTSYNC='', SIMMSG='';
+let lastT=null, lastChain=Promise.resolve();
+function queueLast(){
+  if(!DB||!UID)return; clearTimeout(lastT);
+  lastT=setTimeout(()=>{const body={state:stateOnly(S),at:S.at||Date.now()};
+    lastChain=lastChain.then(()=>DB.doc('data/users/'+UID+'/ultima').set(body)).then(()=>{LASTSYNC='Guardado na sua conta às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});renderSync()})
+      .catch(()=>{LASTSYNC='Não deu para guardar na conta agora — ficou guardado neste aparelho.';renderSync()});},1500);
+}
+function renderSync(){const el=document.getElementById('syncInfo'); if(!el)return;
+  el.textContent=ACC==='ok'?(LASTSYNC||'O que está na tela é guardado sozinho na sua conta.'):ACC==='loading'?'Conectando à sua conta…':'Salvar na conta não está disponível aqui — o que você digita fica só neste aparelho.'}
+const myName=id=>id&&id===UID?'você':(NAMES[id]||'Alguém');
+const simCache={};
+function simCalc(s){const key=s.id+':'+s.at; if(!simCache[key]){try{simCache[key]=calc(normalize(s.state))}catch(e){simCache[key]=null}} return simCache[key]}
+function errMsg(e){const c=e&&e.code;
+  if(c==='invalid_argument')return 'Sem permissão para salvar. Peça ao Bruno para compartilhar o app com você como Editor.';
+  if(c==='quota_exceeded')return 'O espaço de simulações está cheio. Apague algumas antigas e tente de novo.';
+  return 'Não deu para salvar agora. Confira a internet e tente de novo.'}
+async function resolveNames(){if(!USER)return; const ids=[...new Set(SIMS.map(s=>s.by).concat(S.pd.cat.concat(S.pd.ins).map(e=>e&&e.by)).filter(Boolean))]; if(!ids.length)return;
+  try{const ps=await USER.profiles(ids); let ch=false; ids.forEach(id=>{const n=(ps[id]&&ps[id].name)||''; if(n&&NAMES[id]!==n){NAMES[id]=n;ch=true}}); if(ch)refresh()}catch(e){}}
+
+function renderSims(){
+  renderSync();
+  const box=document.getElementById('simSave'); if(!box)return;
+  document.getElementById('simMore').classList.toggle('hide',ACC!=='ok');
+  if(ACC!=='ok'){box.innerHTML=`<p class="hint" style="margin:0">${ACC==='loading'?'Carregando…':'As simulações salvas precisam da sua conta do Claude e de internet. Abra o app pelo link do Claude, com a sua conta.'}</p>`;
+    document.getElementById('simCmp').innerHTML='';document.getElementById('simList').innerHTML='';return}
+  const cur=UI.cur&&SIMS.find(s=>s.id===UI.cur); const mineCur=cur&&cur.by===UID;
+  const bestNow=M?M.best:null;
+  if(!box.dataset.built){
+    box.innerHTML=`<label class="f" style="margin-top:0"><span>Nome da simulação</span><input class="n" id="simName" maxlength="60" placeholder="Ex.: Boi @ 340 — outubro" style="background:var(--card);border-color:var(--line)"></label>
+      <div id="simCurBox"></div><div class="btns" id="simBtns"></div><div class="msg" id="simMsg"></div>`;
+    box.dataset.built=1;
+  }
+  document.getElementById('simCurBox').innerHTML=`<p class="hint" style="margin:6px 0 0">Na tela agora: <b>${bestNow?esc(bestNow.txt):''}</b>${bestNow&&bestNow.lucro>0?' · lucro '+brl(bestNow.lucro)+'/ano':''}</p>`+
+    (cur?`<p class="hint">Aberta: <b>${esc(cur.name)}</b>${UI.dirty?' — com alterações':''}</p>`:'');
+  document.getElementById('simBtns').innerHTML=(mineCur?`<button class="pri" data-act="upd">Atualizar “${esc(cur.name)}”</button>`:'')+`<button class="${mineCur?'':'pri'}" data-act="new">Salvar como nova</button>`;
+  const mm=document.getElementById('simMsg'); mm.textContent=SIMMSG; mm.className='msg '+(/^Salv|^Atualiz|^Aberta|^Apagada|^Marcada|^Renomeada|^Removida/.test(SIMMSG)?'good':'bad');
+
+  // comparar
+  const opts=[['cur','Na tela agora']].concat(SIMS.map(s=>[s.id,(s.id===OFICIAL?'★ ':'')+s.name]));
+  if(!UI.cmpA||(UI.cmpA!=='cur'&&!SIMS.find(s=>s.id===UI.cmpA)))UI.cmpA=OFICIAL&&SIMS.find(s=>s.id===OFICIAL)?OFICIAL:(SIMS[0]?SIMS[0].id:'cur');
+  if(UI.cmpB!=='cur'&&!SIMS.find(s=>s.id===UI.cmpB))UI.cmpB='cur';
+  if(UI.cmpA==='cur'&&UI.cmpB==='cur'&&SIMS.length)UI.cmpA=OFICIAL&&SIMS.find(s=>s.id===OFICIAL)?OFICIAL:SIMS[0].id;
+  const selH=(id,v)=>`<select class="n" id="${id}">${opts.map(([k,l])=>`<option value="${esc(k)}" ${k===v?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
+  const cmp=document.getElementById('simCmp');
+  cmp.innerHTML=`<div class="grid2"><label class="f" style="margin-top:0"><span>A</span>${selH('cmpA',UI.cmpA)}</label><label class="f" style="margin-top:0"><span>B</span>${selH('cmpB',UI.cmpB)}</label></div><div class="scroll">${compareHTML(UI.cmpA,UI.cmpB)}</div>`;
+  document.getElementById('cmpA').onchange=e=>{UI.cmpA=e.target.value;saveLocal();renderSims()};
+  document.getElementById('cmpB').onchange=e=>{UI.cmpB=e.target.value;saveLocal();renderSims()};
+
+  // lista
+  document.querySelectorAll('#segMine button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='mine')===!!UI.mine));
+  let list=SIMS.slice().sort((a,b)=>(b.id===OFICIAL)-(a.id===OFICIAL)||(b.at||0)-(a.at||0));
+  if(UI.mine)list=list.filter(s=>s.by===UID);
+  const L=document.getElementById('simList');
+  if(!list.length){L.innerHTML=`<p class="hint">${UI.mine?'Você ainda não salvou nenhuma simulação.':'Nenhuma simulação salva ainda. Dê um nome acima e toque em “Salvar como nova”.'}</p>`;return}
+  L.innerHTML=list.map(s=>{const m=simCalc(s), mine=s.by===UID, ofi=s.id===OFICIAL;
+    const res=m?`<b>${esc(m.best.txt)}</b>${m.best.lucro>0?` · <span class="good">${brl(m.best.lucro)}/ano</span>`:''}<div class="mini">${m.C>0?'Investimento '+brl(m.C):''}</div>`:'';
+    const star=OWNER?`<button class="star ${ofi?'':'off'}" data-act="ofi" data-id="${esc(s.id)}" aria-label="Marcar como oficial">${ofi?'★':'☆'}</button>`:(ofi?'<span class="star">★</span>':'');
+    return `<div class="sim ${s.id===UI.cur?'cur':''}"><div class="t">${star}<div class="nm">${esc(s.name)}${ofi?'<span class="ofi">OFICIAL</span>':''}</div></div>
+      <div class="by"><span class="pdb ex">${PNOME[(s.state&&s.state.praca)||'GO']}</span> por ${esc(myName(s.by))} · ${when(s.at)}</div><div class="res">${res}</div>
+      <div class="btns"><button class="pri" data-act="open" data-id="${esc(s.id)}">Abrir</button><button data-act="cmp" data-id="${esc(s.id)}">Comparar</button>
+      ${mine?`<button data-act="ren" data-id="${esc(s.id)}">Renomear</button><button class="warn" data-act="del" data-id="${esc(s.id)}">Apagar</button>`:''}</div>
+      <div data-slot="${esc(s.id)}"></div></div>`}).join('');
+  resolveNames();
+}
+
+// campos que entram no “o que mudou”
+function fieldsOf(st){const s=normalize(st); syncLinks(s); const out=[];
+  out.push(['Praça',PNOME[s.praca]],['Valor para investir',brl(s.inv.valor)],['Aplicação ao ano',pct(s.inv.apl)]);
+  out.push(['Margem mínima',pct(s.gen.mm)],['Custo fixo/dia',brl(s.gen.fixo,2)]);
+  s.dietas.forEach((d,j)=>out.push(['Custo da dieta — '+d.n,brl(dietCost(s,j,0)/1000,2)+'/kg MS']));
+  s.cats.forEach(c=>{out.push([c.n+' — compra',uprice(c,c.cu)],[c.n+' — venda',brl(c.venda,2)+'/@'],[c.n+' — pesos',num(c.p0)+' → '+num(c.pf)+' kg'],[c.n+' — GMD',num(c.gmd,2)+' kg'],[c.n+' — consumo',pct(c.cons)+' PV'])});
+  out.push(['Categorias que podem entrar',s.cats.filter((c,k)=>s.inv.sim[k]).length+' de '+s.cats.length]);
+  return out;
+}
+function compareHTML(a,b){
+  const get=id=>id==='cur'?{name:'Na tela',state:stateOnly(S),m:M}:(()=>{const s=SIMS.find(x=>x.id===id); return s?{name:s.name,state:s.state,m:simCalc(s)}:null})();
+  const A=get(a),B=get(b); if(!A||!B||!A.m||!B.m)return '';
+  if(a===b)return `<p class="hint">Escolha duas simulações diferentes.</p>`;
+  const row=(l,x,y,cls)=>`<tr><td>${l}</td><td class="${cls?cls(0):''}">${x}</td><td class="${cls?cls(1):''}">${y}</td></tr>`;
+  const ba=A.m.best, bb=B.m.best;
+  let h=`<table class="tbl"><tr><th></th><th>A</th><th>B</th></tr>`+
+    `<tr><td>Melhor opção</td><td style="white-space:normal">${esc(ba.txt)}</td><td style="white-space:normal">${esc(bb.txt)}</td></tr>`+
+    row('<b>Lucro no ano</b>',`<b>${brl(Math.max(0,ba.lucro))}</b>`,`<b>${brl(Math.max(0,bb.lucro))}</b>`)+
+    row('Diferença B − A','',`<b class="${sg(bb.lucro-ba.lucro)}">${brl(Math.max(0,bb.lucro)-Math.max(0,ba.lucro))}</b>`)+
+    row('Capital usado',brl(ba.cap),brl(bb.cap))+
+    row('Retorno ao ano',pct(A.m.C?Math.max(0,ba.lucro)/A.m.C:0),pct(B.m.C?Math.max(0,bb.lucro)/B.m.C:0))+
+    `<tr><td colspan="3" style="padding-top:12px"><b>Margem ao mês · lucro por cabeça</b></td></tr>`+
+    A.m.R.map((r,k)=>{const q=B.m.R[k]; return `<tr><td>${esc(r.n)}</td><td class="${sg(r.luc)}">${pct(r.mm,2)}<div class="mini">${brl(r.luc)}</div></td><td class="${sg(q.luc)}">${pct(q.mm,2)}<div class="mini">${brl(q.luc)}</div></td></tr>`}).join('')+`</table>`;
+  const fa=fieldsOf(A.state), fb=fieldsOf(B.state), dif=fa.map((x,i)=>[x[0],x[1],fb[i][1]]).filter(x=>x[1]!==x[2]);
+  h+=`<h3>O que mudou entre A e B</h3>`+(dif.length?`<table class="tbl"><tr><th></th><th>A</th><th>B</th></tr>${dif.map(d=>`<tr><td>${esc(d[0])}</td><td>${esc(d[1])}</td><td class="dif">${esc(d[2])}</td></tr>`).join('')}</table>`:`<p class="hint">Os dados principais são iguais.</p>`);
+  return h;
+}
+
+document.getElementById('t-sim').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-act]'); if(!b||!DB)return;
+  const act=b.dataset.act, id=b.dataset.id, s=id&&SIMS.find(x=>x.id===id);
+  const msg=t=>{SIMMSG=t;renderSims()};
+  try{
+    if(act==='new'||act==='upd'){
+      const nmEl=document.getElementById('simName'); let name=(nmEl.value||'').trim();
+      if(act==='upd'){const cur=SIMS.find(x=>x.id===UI.cur); if(!cur||cur.by!==UID)return; if(!name)name=cur.name;
+        b.disabled=true; await DB.doc('sims/'+cur.id).set({name,by:cur.by,at:Date.now(),state:stateOnly(S)}); UI.dirty=false; nmEl.value=''; saveLocal(); msg('Atualizada: '+name); refresh(); return}
+      if(!name){msg('Dê um nome para a simulação antes de salvar.');nmEl.focus();return}
+      if(!UID){msg('Não foi possível identificar a sua conta.');return}
+      b.disabled=true; const ref=await DB.collection('sims').add({name,by:UID,at:Date.now(),state:stateOnly(S)});
+      UI.cur=ref.id; UI.dirty=false; nmEl.value=''; saveLocal(); msg('Salva: '+name); refresh(); return;
+    }
+    if(!s)return;
+    if(act==='open'){
+      if(UI.dirty&&b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Confirmar: trocar o que está na tela';return}
+      S=normalize(s.state); S.at=Date.now(); UI.cur=s.id; UI.dirty=false; saveLocal(); queueLast(); buildAj(); SIMMSG='Aberta: '+s.name; refresh(); showTab('inv'); return;
+    }
+    if(act==='cmp'){UI.cmpA=s.id; UI.cmpB='cur'; saveLocal(); renderSims(); document.getElementById('simCmp').scrollIntoView({behavior:'smooth',block:'start'}); return}
+    if(act==='ofi'&&OWNER){const was=OFICIAL===s.id; await DB.doc('config/oficial').set({simId:was?null:s.id}); msg(was?'Removida a marca de oficial: '+s.name:'Marcada como oficial: '+s.name); return}
+    if(s.by!==UID)return;
+    if(act==='del'){if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Confirmar apagar';return}
+      await DB.doc('sims/'+s.id).delete(); if(UI.cur===s.id)UI.cur=null; if(OFICIAL===s.id&&OWNER)await DB.doc('config/oficial').set({simId:null}); msg('Apagada: '+s.name); return}
+    if(act==='ren'){const slot=document.querySelector(`[data-slot="${CSS.escape(s.id)}"]`);
+      slot.innerHTML=`<div class="ren"><input class="n" maxlength="60" value="${esc(s.name)}" style="background:var(--card);border-color:var(--line)"><button class="btn" style="width:auto;margin:0" data-act="renok" data-id="${esc(s.id)}">OK</button></div>`;
+      slot.querySelector('input').focus(); return}
+    if(act==='renok'){const v=(b.parentNode.querySelector('input').value||'').trim(); if(!v)return; await DB.doc('sims/'+s.id).update({name:v}); msg('Renomeada: '+v); return}
+  }catch(err){b.disabled=false; msg(errMsg(err))}
+});
+document.getElementById('segMine').onclick=e=>{const b=e.target.closest('button'); if(b){UI.mine=b.dataset.v==='mine';saveLocal();renderSims()}};
+
+async function initAccount(){
+  try{
+    if(!window.claude||typeof window.claude.use!=='function'){ACC='off';renderSims();return}
+    const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+    USER=user;
+    if(user){try{UID=await user.id(); OWNER=await user.isOwner()}catch(e){}}
+    if(!db){ACC='off';renderSims();return}
+    DB=db; ACC='ok'; resolveNames();
+    if(UID){try{const snap=await db.doc('data/users/'+UID+'/ultima').get();
+      if(snap.exists){const d=snap.data(); if(d&&d.state&&(d.at||0)>(S.at||0)){S=normalize(d.state); if(!Array.isArray(d.state.dsrc))S.dsrc=DEF.dsrc.slice(); S.at=d.at; saveLocal(); buildAj(); LASTSYNC='Última simulação carregada da sua conta.'; refresh()}}
+      else if(S.at)queueLast();
+    }catch(e){}}
+    db.collection('sims').onSnapshot(q=>{SIMS=q.docs.map(d=>Object.assign({id:d.id},d.data()));
+      if(UI.cur&&!SIMS.find(s=>s.id===UI.cur))UI.cur=null; renderSims(); refreshCur()},()=>{});
+    db.doc('config/oficial').onSnapshot(sn=>{OFICIAL=sn.exists?((sn.data()||{}).simId||null):null; renderSims()},()=>{});
+  }catch(e){ACC='off'}
+  renderSims();
+}
+function refreshCur(){const cs=UI.cur&&SIMS.find(s=>s.id===UI.cur); document.getElementById('curInfo').innerHTML=cs?`Simulação aberta: <b>${esc(cs.name)}</b>${UI.dirty?' (com alterações não salvas)':''}`:''}
+
+// ---------------- AVALIAR UM LOTE (calculadora rápida, não muda os dados) ----------------
+const LOTE_CATS=()=>S.cats.map((c,k)=>k);
+const FUT_CATS=[0,5,6,7]; // vaca parida (vaca), boi, novilha, vaca solteira
 const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-const FUT_CATS=[0,5,6,7];
-const P=()=>D.pracas[D.praca];
-const fcOf=(c,p0)=>c.un==='kg'?p0:c.un==='arroba'?p0/30:1;
-
-// ---------- preencher o lote com os dados da categoria ----------
-function fill(k){const c=D.cats[k], pr=P().cats[k]||{}; Object.assign(L,{k,p0:c.p0,pf:c.pf,cu:pr.cu,venda:pr.venda,dc:P().dcost[c.d],dcEdit:false,ent:L.ent||hojeISO()});
-  L.lance=Math.round(L.cu*fcOf(c,L.p0)); if(c.bez){L.bp0=c.bez.p0; L.bpreco=pr.bp!=null?pr.bp:16}}
-if(L.p0==null)fill(L.k);
-
-// ---------- montar a tela ----------
-const inp=(id,label,val,unit,t,attr)=>`<label class="f"><span>${label}</span><div class="inwrap"><input class="n" id="${id}" ${attr||`data-lt="${t||'num'}"`} inputmode="decimal" value="${showVal(val,t==='rs0'?'rs0':t==='pct'?'pct':'num')}"><i>${unit}</i></div></label>`;
-function build(){
-  const c=D.cats[L.k], leil=L.onde!=='direto', canFut=FUT_CATS.includes(L.k), isFut=canFut&&L.modo==='fut', f=D.fut;
-  if(!L.dcEdit)L.dc=P().dcost[c.d];
-  document.querySelectorAll('#segPraca button').forEach(b=>b.classList.toggle('on',b.dataset.v===D.praca));
-  document.getElementById('dadosInfo').innerHTML=D.exemplo?'<span class="pdb ex">valores de exemplo</span> Cole o código do app em “Ajustes e dados do app”.':`Dados do app de <b>${when(D.at)}</b>`;
+const hojeISO=()=>{const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+function loteFc(L){const u=S.cats[L.k].un; return u==='kg'?L.p0:u==='arroba'?L.p0/30:1}
+function loteFill(k){const c=S.cats[k], o=UI.lote||{}; UI.lote={k,p0:c.p0,cu:c.cu,qt:o.qt||1,onde:o.onde||'leilao',venda:c.venda,pf:c.pf,modo:o.modo||'app',ent:o.ent||hojeISO(),dc:Math.round(M.D[c.d].rs/10)/100,dcEdit:false}; UI.lote.lance=Math.round(UI.lote.cu*loteFc(UI.lote)); if(c.bez)Object.assign(UI.lote,{bp0:c.bez.p0,bgmd:c.bez.gmd,bpreco:c.bez.preco})}
+function futVenda(k){const f=S.fut; return f.preco-f.base-f.custo-(f.desc[k]||0)}
+function loteBuild(){
+  if(!UI.lote||!LOTE_CATS().includes(UI.lote.k))loteFill(LOTE_CATS().includes(5)?5:LOTE_CATS()[0]);
+  if(S.cats[UI.lote.k].bez&&UI.lote.bp0==null)loteFill(UI.lote.k);
+  if(!UI.lote.onde)UI.lote.onde='leilao'; if(!isN(UI.lote.lance))UI.lote.lance=Math.round(UI.lote.cu*loteFc(UI.lote));
+  const L=UI.lote, c=S.cats[L.k], canFut=FUT_CATS.includes(L.k), leil=L.onde==='leilao'; if(!L.dcEdit||!isN(L.dc))L.dc=Math.round(M.D[c.d].rs/10)/100; if(!canFut)L.modo='app'; if(!L.ent)L.ent=hojeISO();
+  const inp=(id,label,val,unit,t,attr)=>`<label class="f"><span>${label}</span><div class="inwrap"><input class="n" id="${id}" ${attr||`data-lt="${t||'num'}"`} inputmode="decimal" value="${showVal(val,t==='rs0'?'rs0':'num')}"><i>${unit}</i></div></label>`;
+  const fi=(key,label,val,unit)=>inp('lt_f_'+key,label,val,unit,'num',`data-ft="${key}"`);
+  const f=S.fut, isFut=L.modo==='fut';
   const descLbl={0:'Desconto da vaca em relação ao boi',6:'Desconto da novilha em relação ao boi',7:'Desconto da vaca em relação ao boi'};
-  const cf=D.loteCfg[leil?'leilao':'direto'];
   document.getElementById('loteForm').innerHTML=`
     <div class="seg" id="ltOnde" style="margin-bottom:10px"><button data-v="leilao" class="${leil?'on':''}">Leilão</button><button data-v="direto" class="${leil?'':'on'}">Direto com o produtor</button></div>
-    <label class="f" style="margin-top:0"><span>Categoria</span><select class="n" id="lt_k">${D.cats.map((x,k)=>`<option value="${k}" ${k===L.k?'selected':''}>${esc(x.n)}</option>`).join('')}</select></label>
+    <label class="f" style="margin-top:0"><span>Categoria</span><select class="n" id="lt_k">${LOTE_CATS().map(k=>`<option value="${k}" ${k===L.k?'selected':''}>${esc(S.cats[k].n)}</option>`).join('')}</select></label>
     <div class="grid2">${inp('lt_p0','Peso de compra',L.p0,'kg')}${leil?inp('lt_lance',c.un==='cab'?'Lance (R$ o conjunto)':'Lance (R$ por cabeça)',L.lance,'R$','rs0'):inp('lt_cu',c.un==='cab'?'Preço pedido (R$ o conjunto)':c.un==='kg'?'Preço pedido (R$/kg vivo)':'Preço pedido (R$/@)',L.cu,'R$'+UNS[c.un],c.un==='cab'?'rs0':'num')}
     ${inp('lt_qt','Quantas cabeças',L.qt,'cab')}${inp('lt_pf',c.bez?'Peso de saída da vaca':'Peso de saída',L.pf,'kg')}
     ${inp('lt_dc','Custo da dieta (R$/kg MS)',L.dc,'R$/kg')}</div>
-    <p class="hint" style="margin:-4px 0 0">${L.dcEdit?'Custo mudado só para este lote.':'Vem da '+esc(D.dietas[c.d])+' ('+PNOME[D.praca]+').'}</p>
+    <p class="hint" style="margin:-4px 0 0">${L.dcEdit?'Custo mudado só para este lote. ':'Vem da '+esc(S.dietas[c.d].n)+' ('+PNOME[S.praca]+'). '}Mudar aqui não altera o app.</p>
     <div class="cfline" id="ltCf"></div>
     ${c.bez?`<h3>Bezerro</h3><div class="grid2">${inp('lt_bp0','Peso do bezerro na compra',L.bp0,'kg')}${inp('lt_bpreco','Venda do bezerro (R$/kg vivo)',L.bpreco,'R$/kg')}</div>`:''}
     <h3>Preço de venda${c.bez?' da vaca':''}</h3>
     ${canFut?`<div class="seg" id="ltModo"><button data-v="app" class="${isFut?'':'on'}">Do app</button><button data-v="fut" class="${isFut?'on':''}">Pelo mercado futuro</button></div>`:''}
     ${!isFut?`<div class="grid2">${inp('lt_venda','Preço de venda (R$/@)',L.venda,'R$/@')}</div>`:
-      `<div class="grid2">${inp('lt_f_preco','Cotação do futuro — boi SP (R$/@)',f.preco||'','R$/@','num','data-ft="preco"')}${inp('lt_f_base','Base: '+PNOME[D.praca]+' paga abaixo de SP (R$/@)',P().base,'R$/@','num','data-ft="base"')}
-      ${inp('lt_f_custo','Custo da trava (R$/@)',f.custo,'R$/@','num','data-ft="custo"')}${L.k!==5?inp('lt_f_desc',descLbl[L.k],f.desc[L.k]||0,'R$/@','num','data-ft="desc"'):''}</div>
-      <label class="f"><span>Data de entrada no cocho</span><input class="n" type="date" id="lt_ent" value="${esc(L.ent||hojeISO())}"></label>`}`;
-  cfRender();
-  const cu=document.getElementById(leil?'lt_lance':'lt_cu'); if(cu&&c.un!=='cab'){const sp=document.createElement('span'); sp.className='mini cab'; sp.id='ltCuCab'; cu.closest('.inwrap').after(sp)}
-  ajBuild(); calc();
+      `<div class="grid2">${fi('preco','Cotação do futuro — boi SP (R$/@)',f.preco||'','R$/@')}${fi('base','Base: Goiás paga abaixo de SP (R$/@)',f.base,'R$/@')}
+      ${fi('custo','Custo da trava (R$/@)',f.custo,'R$/@')}${L.k!==5?fi('desc',descLbl[L.k],f.desc[L.k]||0,'R$/@'):''}</div>
+      <label class="f"><span>Data de entrada no cocho</span><input class="n" type="date" id="lt_ent" value="${esc(L.ent)}"></label>
+      <p class="hint" style="margin:0">Base, custo da trava e desconto ficam guardados — só a cotação você muda todo dia.</p>`}
+    <p class="hint" style="margin:6px 0 0">${isFut?'':'Venda e peso de saída vêm do app — mude se quiser. '}Nada disso altera os seus dados, só o botão no fim.</p>`;
+  loteCfRender();
+  {const cu=document.getElementById(leil?'lt_lance':'lt_cu'); if(cu&&c.un!=='cab'){const sp=document.createElement('span'); sp.className='mini cab'; sp.id='ltCuCab'; cu.closest('.inwrap').after(sp)}}
 }
-let cfEdit=false;
-function cfRender(){const el=document.getElementById('ltCf'), cf=D.loteCfg[L.onde==='direto'?'direto':'leilao'];
-  el.innerHTML=cfEdit?`<div class="grid2">${inp('cf_com','Comissão de compra',cf.com,'%','pct','data-cf="com"')}${inp('cf_frete','Frete',cf.frete,'R$/cab','num','data-cf="frete"')}</div><button class="conf" id="ltCfOk" type="button">pronto</button>`:
+function loteCfRender(){const el=document.getElementById('ltCf'); if(!el)return; const L=UI.lote, cf=S.loteCfg[L.onde||'leilao'];
+  el.innerHTML=UI.cfEdit?`<div class="grid2"><label class="f"><span>Comissão de compra</span><div class="inwrap"><input class="n" data-cf="com" inputmode="decimal" value="${showVal(cf.com,'pct')}"><i>%</i></div></label>
+    <label class="f"><span>Frete</span><div class="inwrap"><input class="n" data-cf="frete" inputmode="decimal" value="${showVal(cf.frete,'num')}"><i>R$/cab</i></div></label></div><button class="conf" id="ltCfOk" type="button">pronto</button>`:
     `<span>Comissão ${pct(cf.com,1).replace(',0%','%')} · Frete ${brl(cf.frete)}/cab</span> <button class="conf" id="ltCfEdit" type="button">mudar</button>`}
-
-// ---------- a conta (mesma do app principal) ----------
-function calc(){
-  const c=D.cats[L.k], leil=L.onde!=='direto', cf=D.loteCfg[leil?'leilao':'direto'], isFut=FUT_CATS.includes(L.k)&&L.modo==='fut';
-  const fc=fcOf(c,L.p0)||1, base=leil?L.lance:(c.un==='cab'?L.cu:L.cu*fc);
-  const el=document.getElementById('ltCuCab');
-  if(el)el.innerHTML=!(isN(base)&&fc>0)?'':leil?`= ${brl(base/fc,2)}${UNS[c.un]}`+(c.un==='arroba'?` (${num(fc,1)} @)`:'')+(cf.com?`<br>com comissão: <b>${brl(base*(1+cf.com)/fc,2)}${UNS[c.un]}</b>`:''):`= ${brl(base)} por cabeça`+(c.un==='arroba'?` (${num(fc,1)} @)`:'');
+// demonstrativo: a conta passo a passo, com os números da simulação
+function loteDemo(c,r,g,qt,X){
+  const bz=c.bez, F2=x=>F[2].format(x), pm=(c.p0+c.pf)/2, gm=num(c.gmd,2).replace(/,?0+$/,'')||'0';
+  const rows=[];
+  rows.push(['Dias de cocho',`(${num(c.pf)} − ${num(c.p0)}) ÷ ${gm} kg/dia = ${num((c.pf-c.p0)/c.gmd,1)} → arredonda para cima`,`${num(r.dias)} dias`]);
+  rows.push(['Consumo por dia',`${pct(c.cons,1)} × peso médio ${num(pm)} kg${bz&&bz.cons?` + ${num(bz.cons,1)} kg do bezerro`:''}`,`${F2(r.cons)} kg MS`]);
+  rows.push(['Custo por dia',`${F2(r.cons)} kg × ${brl(r.kg,2)} + ${brl(g.fixo,2)} de custo fixo`,brl(r.tdia,2)]);
+  rows.push(['Custo no cocho',`${brl(r.tdia,2)} × ${num(r.dias)} dias`,brl(r.oper)]);
+  const bu=X.base/(r.fc||1);
+  rows.push([X.leil?'Lance':'Preço',r.un==='cab'?'preço do conjunto':X.leil?(r.un==='kg'?`= ${brl(bu,2)}/kg × ${num(c.p0)} kg`:`= ${num(c.p0)} kg ÷ 30 = ${num(r.fc,2)} @ × ${brl(bu,2)}/@`):(r.un==='kg'?`${num(c.p0)} kg × ${brl(bu,2)}/kg`:`${num(c.p0)} kg ÷ 30 = ${num(r.fc,2)} @ × ${brl(bu,2)}/@`),brl(X.base)]);
+  if(X.com)rows.push(['Comissão',`${pct(X.com,1)} × ${brl(X.base)}`,brl(X.base*X.com)]);
+  if(X.frete)rows.push(['Frete','por cabeça',brl(X.frete)]);
+  if(X.com||X.frete)rows.push(['Compra',`${brl(X.base)}${X.com?' + '+brl(X.base*X.com):''}${X.frete?' + '+brl(X.frete):''}`,brl(r.compra)]);
+  rows.push(['<b>Custo total</b>',`${brl(r.compra)} + ${brl(r.oper)}`,`<b>${brl(r.ctot)}</b>`]);
+  const arr=c.pf*c.rs/15, vv=arr*c.venda;
+  rows.push([bz?'Venda da vaca':'Venda',`${num(c.pf)} kg × ${pct(c.rs,0)} ÷ 15 = ${num(arr,2)} @ × ${brl(c.venda,2)}`,brl(vv)]);
+  let vb=0; if(bz){const pb=bz.p0+bz.gmd*r.dias; vb=pb*bz.preco; rows.push(['Venda do bezerro',`${num(bz.p0)} kg + ${num(r.dias)} dias × ${num(bz.gmd,1)} kg = ${num(pb)} kg × ${brl(bz.preco,2)}`,brl(vb)])}
+  rows.push(['<b>Receita</b>',`${bz?`(${brl(vv)} + ${brl(vb)})`:brl(vv)} − ${pct(c.mort,1)} de mortalidade`,`<b>${brl(r.rec)}</b>`]);
+  rows.push(['<b>Lucro por cabeça</b>',`${brl(r.rec)} − ${brl(r.ctot)}`,`<b class="${sg(r.luc)}">${brl(r.luc)}</b>`]);
+  rows.push(['<b>Margem ao mês</b>',`(${brl(r.rec)} ÷ ${brl(r.ctot)}), elevado a (30 ÷ ${num(r.dias)}), menos 1`,`<b>${pct(r.mm,2)}</b>`]);
+  if(qt>1)rows.push(['Lucro do lote',`${brl(r.luc)} × ${num(qt)} cabeças`,brl(r.luc*qt)]);
+  rows.push([X.leil?'Lance máximo':'Preço máximo',`${brl(r.rec)} ÷ (1 + ${pct(g.mm,1)}) elevado a (${num(r.dias)} ÷ 30) − ${brl(r.oper)} = ${brl(r.pmax)}`+(X.com||X.frete?`; (${brl(r.pmax)}${X.frete?' − '+brl(X.frete)+' de frete':''})${X.com?' ÷ (1 + '+pct(X.com,1)+')':''} = ${brl(X.maxBase)}`:'')+(X.leil||r.un==='cab'?'':r.un==='kg'?` ÷ ${num(c.p0)} kg`:` ÷ ${num(r.fc,2)} @`),X.leil||r.un==='cab'?brl(X.maxBase):brl(X.maxBase/r.fc,2)+UNS[r.un]]);
+  return `<details class="more demo" ${UI.loteDemo?'open':''}><summary>Ver a conta passo a passo</summary>
+    <table class="tbl demo-t">${rows.map(x=>`<tr><td>${x[0]}<div class="mini">${x[1]}</div></td><td>${x[2]}</td></tr>`).join('')}</table>
+    <p class="hint" style="margin:6px 0 0">@ de venda = peso de saída × rendimento ÷ 15. Pesos, rendimento, consumo e ganho vêm de Configurações → Animais.</p></details>`;
+}
+function loteCalc(){
+  const leil=UI.lote.onde!=='direto', cf=S.loteCfg[leil?'leilao':'direto'], base=leil?UI.lote.lance:UI.lote.cu*loteFc(UI.lote);
+  {const el=document.getElementById('ltCuCab'), c0=S.cats[UI.lote.k]; if(el){const fc=loteFc(UI.lote); el.innerHTML=!(isN(base)&&fc>0)?'':leil?`= ${brl(base/fc,2)}${UNS[c0.un]}`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')+(cf.com?`<br>com comissão: <b>${brl(base*(1+cf.com)/fc,2)}${UNS[c0.un]}</b>`:''):`= ${brl(base)} por cabeça`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')}}
+  const L=UI.lote, k=L.k, isFut=L.modo==='fut'&&FUT_CATS.includes(k); const T=clone(stateOnly(S)); const c=T.cats[k];
+  const vend=isFut?futVenda(k):L.venda;
+  c.p0=L.p0; c.venda=vend; c.pf=L.pf; if('src' in c)c.link=false;
+  const fcc=loteFc(L)||1, eff=base*(1+cf.com)+cf.frete; c.cu=eff/fcc;
+  if(isN(L.dc)&&L.dc>0){T.dsrc[c.d]=null; T.dcost[c.d]=L.dc}
+  if(c.bez&&L.bp0!=null){c.bez.p0=L.bp0; c.bez.preco=L.bpreco}
+  T.cats.forEach(x=>{if(x.link&&x.src===k)x.link=false});
   const res=document.getElementById('loteRes');
-  const venda=isFut?D.fut.preco-P().base-D.fut.custo-(D.fut.desc[L.k]||0):L.venda;
-  if(isFut&&!(D.fut.preco>0)){res.innerHTML='<p class="hint" style="margin:0">Digite a <b>cotação do futuro</b> do vencimento em que o lote vai sair.</p>';return}
-  if(!(L.pf>L.p0)||!(c.gmd>0)){res.innerHTML='<div class="verd no"><b>Confira os pesos.</b> O peso de saída tem que ser maior que o de compra.</div>';return}
-  const bz=c.bez?{p0:L.bp0,gmd:c.bez.gmd,cons:c.bez.cons,preco:L.bpreco}:{p0:0,gmd:0,cons:0,preco:0};
-  const dias=Math.ceil((L.pf-L.p0)/c.gmd-1e-9), cons=c.cons*(L.p0+L.pf)/2+bz.cons, kg=L.dc;
-  const tdia=cons*kg+D.fixo, oper=tdia*dias, compra=base*(1+cf.com)+cf.frete, ctot=compra+oper;
-  const arr=(L.pf*c.rs-L.p0*c.re)/15+bz.gmd*dias/30;
-  const vv=L.pf*c.rs/15*venda, pb=bz.p0+bz.gmd*dias, vb=pb*bz.preco, rec=(vv+vb)*(1-c.mort);
-  const luc=rec-ctot, mm=ctot>0?Math.pow(rec/ctot,30/dias)-1:0, pmax=rec/Math.pow(1+D.mm,dias/30)-oper, maxBase=(pmax-cf.frete)/(1+cf.com);
-  const cab=c.un==='cab', qt=Math.max(0,Math.floor(L.qt||0));
-  const pago=cab?brl(base)+' o conjunto':leil?brl(base)+' por cabeça':brl(base/fc,2)+UNS[c.un], maxp=cab?brl(maxBase)+' o conjunto':leil?brl(maxBase)+' por cabeça':brl(maxBase/fc,2)+UNS[c.un];
-  const maxAlt=cab?'':leil?`= ${brl(maxBase/fc,2)}${UNS[c.un]}`:`= ${brl(maxBase)} por cabeça`, lanc=leil?'dê lance de no máximo':'pague no máximo';
+  if(isFut&&!(S.fut.preco>0)){res.innerHTML=`<p class="hint" style="margin:0">Digite a <b>cotação do futuro</b> do vencimento em que o lote vai sair para ver o lance máximo.</p>`;return}
+  const MM=calc(T), r=MM.R[k], g=S.gen, cc=T.cats[k];
+  const maxBase=(r.pmax-cf.frete)/(1+cf.com), fc=r.fc||1, cab=r.un==='cab';
+  const qt=Math.max(0,Math.floor(L.qt||0)), pago=cab?brl(base)+' o conjunto':leil?brl(base)+' por cabeça':brl(base/fc,2)+UNS[r.un], maxp=cab?brl(maxBase)+' o conjunto':leil?brl(maxBase)+' por cabeça':brl(maxBase/fc,2)+UNS[r.un];
+  const maxAlt=cab?'':leil?`= ${brl(maxBase/fc,2)}${UNS[r.un]}`:`= ${brl(maxBase)} por cabeça`;
   let verd;
-  if(luc<=0)verd=`<div class="verd no"><b>Dá prejuízo.</b> Cada cabeça perde ${brl(-luc)}. Para ter ${pct(D.mm)} ao mês, ${lanc} ${maxp}.</div>`;
-  else if(mm<D.mm)verd=`<div class="verd warn"><b>Dá lucro, mas abaixo da sua margem.</b> Rende ${pct(mm,2)} ao mês e você quer ${pct(D.mm)}. Para chegar lá, ${lanc} ${maxp}.</div>`;
-  else verd=`<div class="verd ok"><b>Compra boa.</b> ${leil?'Lance de':'Pedem'} ${pago} e você pode ${leil?'ir até':'pagar até'} ${maxp}. Rende ${pct(mm,2)} ao mês.</div>`;
+  if(!(L.pf>L.p0)||!(cc.gmd>0))verd=`<div class="verd no"><b>Confira os pesos.</b> O peso de saída tem que ser maior que o de compra.</div>`;
+  else if(r.luc<=0)verd=`<div class="verd no"><b>Dá prejuízo.</b> Cada cabeça perde ${brl(-r.luc)}. Para ter ${pct(g.mm)} ao mês, ${leil?'dê lance de no máximo':'pague no máximo'} ${maxp}.</div>`;
+  else if(r.mm<g.mm)verd=`<div class="verd warn"><b>Dá lucro, mas abaixo da sua margem.</b> Rende ${pct(r.mm,2)} ao mês e você quer ${pct(g.mm)}. Para chegar lá, ${leil?'dê lance de no máximo':'pague no máximo'} ${maxp}.</div>`;
+  else verd=`<div class="verd ok"><b>Compra boa.</b> ${leil?'Lance de':'Pedem'} ${pago} e você pode ${leil?'ir até':'pagar até'} ${maxp}. Rende ${pct(r.mm,2)} ao mês.</div>`;
+  // mercado futuro: venda em Goiás, vencimento e contratos
   let fut='';
-  if(isFut){const f=D.fut, d=f.desc[L.k]||0, ent=new Date((L.ent||hojeISO())+'T12:00:00'), sai=new Date(ent.getTime()+dias*864e5), arrT=L.pf*c.rs/15*qt, ctr=arrT/330;
-    fut='<h3>Mercado futuro</h3>'+kv('Venda em '+PNOME[D.praca],`${brl(venda,2)}/@<div class="mini">futuro ${brl(f.preco,2)} − base ${brl(P().base,2)} − trava ${brl(f.custo,2)}${d?` − desconto ${brl(d,2)}`:''}</div>`,'',true)+
-      kv('Saída prevista',`${sai.toLocaleDateString('pt-BR')}<div class="mini">use o vencimento de <b>${MESES[sai.getMonth()]}/${sai.getFullYear()}</b></div>`)+
-      kv('Arrobas para travar',`${num(arrT)} @<div class="mini">≈ ${num(ctr,1)} contratos de 330 @ → ${num(Math.round(ctr))}</div>`)}
-  // passo a passo
-  const F2=x=>F[2].format(x), rows=[];
-  rows.push(['Dias de cocho',`(${num(L.pf)} − ${num(L.p0)}) ÷ ${num(c.gmd,2).replace(/,?0+$/,'')} kg/dia = ${num((L.pf-L.p0)/c.gmd,1)} → arredonda para cima`,`${num(dias)} dias`]);
-  rows.push(['Consumo por dia',`${pct(c.cons,1)} × peso médio ${num((L.p0+L.pf)/2)} kg${bz.cons?` + ${num(bz.cons,1)} kg do bezerro`:''}`,`${F2(cons)} kg MS`]);
-  rows.push(['Custo por dia',`${F2(cons)} kg × ${brl(kg,2)} + ${brl(D.fixo,2)} de custo fixo`,brl(tdia,2)]);
-  rows.push(['Custo no cocho',`${brl(tdia,2)} × ${num(dias)} dias`,brl(oper)]);
-  rows.push([leil?'Lance':'Preço',cab?'preço do conjunto':c.un==='kg'?`${num(L.p0)} kg × ${brl(base/fc,2)}/kg`:`${num(L.p0)} kg ÷ 30 = ${num(fc,2)} @ × ${brl(base/fc,2)}/@`,brl(base)]);
-  if(cf.com)rows.push(['Comissão',`${pct(cf.com,1)} × ${brl(base)}`,brl(base*cf.com)]);
-  if(cf.frete)rows.push(['Frete','por cabeça',brl(cf.frete)]);
-  rows.push(['<b>Custo total</b>',`${brl(compra)} + ${brl(oper)}`,`<b>${brl(ctot)}</b>`]);
-  rows.push([c.bez?'Venda da vaca':'Venda',`${num(L.pf)} kg × ${pct(c.rs,0)} ÷ 15 = ${num(L.pf*c.rs/15,2)} @ × ${brl(venda,2)}`,brl(vv)]);
-  if(c.bez)rows.push(['Venda do bezerro',`${num(bz.p0)} kg + ${num(dias)} dias × ${num(bz.gmd,1)} kg = ${num(pb)} kg × ${brl(bz.preco,2)}`,brl(vb)]);
-  rows.push(['<b>Receita</b>',`${c.bez?`(${brl(vv)} + ${brl(vb)})`:brl(vv)} − ${pct(c.mort,1)} de mortalidade`,`<b>${brl(rec)}</b>`]);
-  rows.push(['<b>Lucro por cabeça</b>',`${brl(rec)} − ${brl(ctot)}`,`<b class="${sg(luc)}">${brl(luc)}</b>`]);
-  rows.push(['<b>Margem ao mês</b>',`(${brl(rec)} ÷ ${brl(ctot)}), elevado a (30 ÷ ${num(dias)}), menos 1`,`<b>${pct(mm,2)}</b>`]);
-  rows.push([leil?'Lance máximo':'Preço máximo',`${brl(rec)} ÷ (1 + ${pct(D.mm,1)}) elevado a (${num(dias)} ÷ 30) − ${brl(oper)} = ${brl(pmax)}`+(cf.com||cf.frete?`; (${brl(pmax)}${cf.frete?' − '+brl(cf.frete):''})${cf.com?' ÷ (1 + '+pct(cf.com,1)+')':''} = ${brl(maxBase)}`:''),cab||leil?brl(maxBase):brl(maxBase/fc,2)+UNS[c.un]]);
+  if(isFut){const f=S.fut, d=f.desc[k]||0;
+    const ent=new Date((L.ent||hojeISO())+'T12:00:00'), sai=new Date(ent.getTime()+r.dias*864e5);
+    const arrCab=cc.pf*cc.rs/15, arrTot=arrCab*qt, ctr=arrTot/330;
+    fut=`<h3>Mercado futuro</h3>`+
+      kv('Venda em Goiás',`${brl(vend,2)}/@<div class="mini">futuro ${brl(f.preco,2)} − base ${brl(f.base,2)} − trava ${brl(f.custo,2)}${d?` − desconto ${brl(d,2)}`:''}</div>`,'',true)+
+      kv('Saída prevista',`${ent.getTime()?sai.toLocaleDateString('pt-BR'):'—'}<div class="mini">use o vencimento de <b>${MESES[sai.getMonth()]}/${sai.getFullYear()}</b></div>`)+
+      kv('Arrobas para travar',`${num(arrTot)} @<div class="mini">≈ ${num(ctr,1)} contratos de 330 @ → ${num(Math.round(ctr))} contrato${Math.round(ctr)===1?'':'s'}</div>`)+
+      (k!==5?`<p class="hint" style="margin:4px 0 0">Trava cruzada: ${k===6?'a novilha':'a vaca'} é travada com contrato de boi. O desconto em relação ao boi pode variar até a venda.</p>`:'');
+  }
+  const top=M.R.filter((x,i)=>M.IT[i].ok).sort((a,b)=>b.mm-a.mm)[0];
+  const cmp=top?`<p class="hint">Para comparar: a categoria de maior margem na sua lista hoje é <b>${esc(top.n)}</b>, com ${pct(top.mm,2)} ao mês.</p>`:'';
+  const warn=[];
+  if(qt*r.ctot>S.inv.valor)warn.push(`O lote precisa de ${brl(qt*r.ctot)} e você informou ${brl(S.inv.valor)} para investir.`);
   res.innerHTML=verd+
-    kv(`${leil?'Lance máximo':'Preço máximo'}`,`${maxp}${maxAlt?`<div class="mini">${maxAlt}</div>`:''}`,'',true)+
-    (cf.com||cf.frete?kv('Compra com comissão e frete',`${brl(compra)}${cab?'':' por cabeça'}<div class="mini">${brl(base)}${cf.com?' + comissão '+brl(base*cf.com):''}${cf.frete?' + frete '+brl(cf.frete):''}</div>`):'')+
-    kv('Margem ao mês',pct(mm,2),mm<D.mm?'bad':'good',true)+kv('Lucro por cabeça',brl(luc),sg(luc))+kv(`Lucro do lote (${num(qt)} cab.)`,brl(luc*qt),sg(luc),true)+
-    kv('Dinheiro necessário (compra + cocho)',brl(ctot*qt))+kv('Dias de cocho',num(dias))+
-    (c.bez?kv('Bezerro sai com',`${num(pb)} kg<div class="mini">= ${brl(vb)} por bezerro</div>`):'')+fut+
-    `<details class="more demo" ${L.demo?'open':''}><summary>Ver a conta passo a passo</summary><table class="tbl demo-t">${rows.map(x=>`<tr><td>${x[0]}<div class="mini">${x[1]}</div></td><td>${x[2]}</td></tr>`).join('')}</table></details>`;
+    kv(`${leil?'Lance máximo':'Preço máximo'} ${Q('pmax')}`,`${maxp}${maxAlt?`<div class="mini">${maxAlt}</div>`:''}`,'',true)+
+    (cf.com||cf.frete?kv('Compra com comissão e frete',`${brl(r.compra)}${cab?'':' por cabeça'}<div class="mini">${brl(base)}${cf.com?' + comissão '+brl(base*cf.com):''}${cf.frete?' + frete '+brl(cf.frete):''}</div>`):'')+
+    kv(`Margem ao mês ${Q('margem')}`,pct(r.mm,2),r.mm<g.mm?'bad':'good',true)+
+    kv('Lucro por cabeça',brl(r.luc),sg(r.luc))+kv(`Lucro do lote (${num(qt)} cab.)`,brl(r.luc*qt),sg(r.luc),true)+
+    kv('Dinheiro necessário (compra + cocho)',brl(r.ctot*qt))+kv('Dias de cocho',num(r.dias))+
+    (cc.bez?kv('Bezerro sai com',`${num(cc.bez.p0+cc.bez.gmd*r.dias)} kg<div class="mini">= ${brl((cc.bez.p0+cc.bez.gmd*r.dias)*cc.bez.preco)} por bezerro</div>`):'')+
+    fut+loteDemo(cc,r,g,qt,{leil,base,com:cf.com,frete:cf.frete,maxBase})+(warn.length?`<div class="alert">${warn.join('<br>')}</div>`:'')+cmp+
+    `<button class="btn" id="loteUse">Usar esses valores no app</button><p class="hint" id="loteUseMsg" style="margin:0"></p>`;
 }
-
-// ---------- ajustes e importação ----------
-function ajBuild(){
-  document.getElementById('ajBody').innerHTML=`<div class="grid2">${inp('aj_mm','Margem mínima ao mês',D.mm,'%','pct','data-aj="mm"')}${inp('aj_fixo','Custo fixo por cabeça/dia',D.fixo,'R$','num','data-aj="fixo"')}</div>
-    <h3>Atualizar com os dados do app</h3>
-    <p class="hint">No app principal, em <b>Lote</b>, toque em “Levar para o Lote offline” e copie o código. Depois cole aqui e toque em “Atualizar”.</p>
-    <textarea class="n" id="impTxt" rows="3" placeholder="Cole o código aqui" style="background:var(--card);border-color:var(--line);font-size:14px"></textarea>
-    <div class="btns"><button id="impPaste">Colar</button><button class="pri" id="impOk">Atualizar</button></div><p class="msg" id="impMsg"></p>`;
-}
-function importar(txt){
-  const raw=String(txt||''); txt=raw.replace(/\s+/g,''); const m=txt.match(/LOTE1:([A-Za-z0-9+/=_-]+)/); if(!m)return raw.trim()?`Código não reconhecido. O que foi colado começa com “${esc(raw.trim().slice(0,25))}…” (${raw.trim().length} caracteres). Copie de novo no app — o código começa com LOTE1:`:'A caixa está vazia. Cole o código copiado no app.';
-  try{const b=m[1].replace(/-/g,'+').replace(/_/g,'/'); const json=decodeURIComponent(escape(atob(b))); const o=JSON.parse(json);
-    if(!valid(o))return 'Código incompleto. Copie de novo no app.'; o.exemplo=false; D=o; fill(L.k); save(); build(); return ''}catch(e){return 'Não consegui ler o código. Copie de novo no app.'}
-}
-
-// ---------- eventos ----------
-document.addEventListener('input',e=>{const el=e.target; if(!el.dataset)return;
-  if(el.id==='lt_ent'){L.ent=el.value; save(); calc(); return}
-  const v=parseNum(el.value);
+document.getElementById('t-lote').addEventListener('input',e=>{const el=e.target; if(!el.dataset)return;
+  if(el.dataset.ft){const v=parseNum(el.value); if(isNaN(v)&&el.value.trim()!=='')return; const x=isNaN(v)?0:v;
+    if(el.dataset.ft==='desc')S.fut.desc[UI.lote.k]=x; else S.fut[el.dataset.ft]=x; touch(); loteCalc(); return}
+  if(el.id==='lt_ent'){UI.lote.ent=el.value; saveLocal(); loteCalc(); return}
+  if(!el.dataset.lt)return;
   if(el.dataset.lt==='rs0')liveMil(el);
-  if(el.dataset.ft){const x=isNaN(v)?0:v; if(el.dataset.ft==='base')P().base=x; else if(el.dataset.ft==='desc')D.fut.desc[L.k]=x; else D.fut[el.dataset.ft]=x; save(); calc(); return}
-  if(el.dataset.cf){D.loteCfg[L.onde==='direto'?'direto':'leilao'][el.dataset.cf]=isNaN(v)?0:(el.dataset.cf==='com'?v/100:v); save(); calc(); return}
-  if(el.dataset.aj){if(isNaN(v))return; D[el.dataset.aj]=el.dataset.aj==='mm'?v/100:v; save(); calc(); return}
-  if(!el.dataset.lt||isNaN(v))return;
-  const key=el.id.slice(3), c=D.cats[L.k]; L[key]=v; if(key==='dc')L.dcEdit=true;
-  const fc=fcOf(c,L.p0)||1; if(key==='lance')L.cu=v/fc; if(key==='cu')L.lance=v*fc; if(key==='p0'){if(L.onde==='direto')L.lance=L.cu*fc; else L.cu=L.lance/fc}
-  save(); calc();
+  const v=parseNum(el.value); if(isNaN(v))return; const key=el.id.slice(3), L=UI.lote; L[key]=v; if(key==='dc')L.dcEdit=true;
+  const fc=loteFc(L)||1; if(key==='lance')L.cu=v/fc; if(key==='cu')L.lance=v*fc; if(key==='p0'){if(L.onde==='direto')L.lance=L.cu*fc; else L.cu=L.lance/fc}
+  saveLocal(); loteCalc()});
+document.getElementById('t-lote').addEventListener('input',e=>{const el=e.target; if(!el.dataset||!el.dataset.cf)return; const v=parseNum(el.value); if(isNaN(v)&&el.value.trim()!=='')return;
+  const cf=S.loteCfg[UI.lote.onde||'leilao']; cf[el.dataset.cf]=isNaN(v)?0:(el.dataset.cf==='com'?v/100:v); touch(); loteCalc()});
+document.getElementById('t-lote').addEventListener('change',e=>{if(e.target.id==='lt_k'){loteFill(+e.target.value); saveLocal(); loteBuild(); loteCalc()}});
+document.getElementById('t-lote').addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('demo')){UI.loteDemo=e.target.open; saveLocal()}},true);
+document.getElementById('t-lote').addEventListener('focusin',e=>{if(e.target.dataset&&(e.target.dataset.lt||e.target.dataset.ft))setTimeout(()=>{try{e.target.select()}catch(_){}} ,0)});
+document.getElementById('t-lote').addEventListener('click',e=>{
+  const mb=e.target.closest&&e.target.closest('#ltModo button'); if(mb){UI.lote.modo=mb.dataset.v; saveLocal(); loteBuild(); loteCalc(); return}
+  const ob=e.target.closest&&e.target.closest('#ltOnde button'); if(ob){UI.lote.onde=ob.dataset.v; UI.cfEdit=false; saveLocal(); loteBuild(); loteCalc(); return}
+  if(e.target.id==='ltCfEdit'){UI.cfEdit=true; loteCfRender(); const i=document.querySelector('#ltCf [data-cf]'); if(i)i.focus(); return}
+  if(e.target.id==='ltCfOk'){UI.cfEdit=false; loteCfRender(); return}
+  if(e.target.id==='loteUse'){const L=UI.lote, b=e.target, isFut=L.modo==='fut'&&FUT_CATS.includes(L.k), lk=S.cats[L.k].link&&('src' in S.cats[L.k]), tk=lk?S.cats[L.k].src:L.k, c=S.cats[tk];
+    if(b.dataset.ok!=='1'){b.dataset.ok='1'; b.textContent=`Confirmar: gravar em ${S.cats[tk].n}`; document.getElementById('loteUseMsg').textContent=(lk?`${S.cats[L.k].n} usa os mesmos preços e pesos da ${S.cats[tk].n}, então grava nas duas. `:'')+'Isso troca peso de compra, preço, venda'+(isFut?' (pelo futuro em Goiás)':'')+' e peso de saída dessa categoria no app'+(c.bez?' (e os dados do bezerro).':'.'); return}
+    c.p0=L.p0; c.cu=L.cu; c.venda=isFut?Math.round(futVenda(L.k)*100)/100:L.venda; c.pf=L.pf; if(c.bez&&L.bp0!=null){c.bez.p0=L.bp0; c.bez.preco=L.bpreco} S.pd.cat[tk]={at:Date.now(),by:UID||null}; syncLinks(S);
+    touch(); buildAj(); refresh(); loteCalc(); document.getElementById('loteUseMsg').textContent='Gravado. A tela Decidir já usa esses valores.';}
 });
-document.addEventListener('change',e=>{if(e.target.id==='lt_k'){fill(+e.target.value); save(); build()}});
-document.addEventListener('focusin',e=>{const t=e.target; if(t.tagName==='INPUT'&&t.type!=='date')setTimeout(()=>{try{t.select()}catch(_){}} ,0)});
-document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('demo')){L.demo=e.target.open; save()}},true);
-document.addEventListener('click',e=>{const t=e.target;
-  const pb=t.closest('#segPraca button'); if(pb){D.praca=pb.dataset.v; const c=D.cats[L.k], pr=P().cats[L.k]||{}; L.cu=pr.cu; L.venda=pr.venda; L.lance=Math.round(L.cu*fcOf(c,L.p0)); if(c.bez&&pr.bp!=null)L.bpreco=pr.bp; L.dcEdit=false; save(); build(); return}
-  const ob=t.closest('#ltOnde button'); if(ob){L.onde=ob.dataset.v; cfEdit=false; save(); build(); return}
-  const mb=t.closest('#ltModo button'); if(mb){L.modo=mb.dataset.v; save(); build(); return}
-  if(t.id==='ltCfEdit'){cfEdit=true; cfRender(); return}
-  if(t.id==='ltCfOk'){cfEdit=false; cfRender(); calc(); return}
-  if(t.id==='impPaste'){(navigator.clipboard&&navigator.clipboard.readText?navigator.clipboard.readText():Promise.reject()).then(x=>{document.getElementById('impTxt').value=x;document.getElementById('impOk').click()}).catch(()=>{const el=document.getElementById('impMsg'); el.textContent='Toque na caixa, segure e escolha “Colar”.'; el.className='msg bad'}); return}
-  if(t.id==='impOk'){const m=importar(document.getElementById('impTxt').value); const el=document.getElementById('impMsg');
-    if(m){el.innerHTML=m; el.className='msg bad'} else {const e2=document.getElementById('impMsg'); if(e2){e2.textContent='Atualizado!'; e2.className='msg good'} document.getElementById('dadosInfo').scrollIntoView()}}
+
+// ---------------- DIETA: simular uma formulação (resumida) ----------------
+function fIng(id){return S.form.ings.find(x=>x.id===id)}
+function fCur(){let f=S.form.forms.find(x=>x.id===S.form.cur); if(!f){f=S.form.forms[0]; S.form.cur=f?f.id:null} return f}
+function dietSrc(st,j){const id=st.dsrc&&st.dsrc[j]; return id!=null&&st.form?st.form.forms.find(x=>x.id===id)||null:null}
+function dietCost(st,j,fallback){const f=dietSrc(st,j); if(f)return fCalcOn(st,f).cost*1000; return st.dcost&&isN(st.dcost[j])?st.dcost[j]*1000:fallback}
+function fCalc(f){return fCalcOn(S,f)}
+function fCalcOn(S,f){
+  let sum=0,cost=0,pb=0,ndt=0,fdn=0,fdne=0,mn=0;
+  S.form.ings.forEach(it=>{const p=f.sh[it.id]||0; if(!p)return; sum+=p; const ms=it.ms>0?it.ms:1;
+    cost+=p*it.rs/ms/1000; pb+=p*it.pb; ndt+=p*it.ndt; fdn+=p*it.fdn; fdne+=p*it.fdne; mn+=p/ms});
+  return {sum,cost,pb,ndt,fdn,fdne,mn,ms:mn>0?sum/mn:0,costMN:mn>0?cost*sum/mn*1000:0};
+}
+function formBuild(){
+  const f=fCur(), box=document.getElementById('formBox'); if(!f){box.innerHTML='';return}
+  const used=S.form.ings.filter(it=>(f.sh[it.id]||0)>0).sort((a,b)=>(f.sh[b.id]||0)-(f.sh[a.id]||0)), other=S.form.ings.filter(it=>!((f.sh[it.id]||0)>0));
+  const fi=S.form.forms.indexOf(f);
+  const row=it=>{const i=S.form.ings.indexOf(it);
+    return `<div class="card ingc"><div class="ingtop"><span class="nm"><span id="fnm${it.id}">${esc(it.n)}</span><span class="mini" style="display:block;font-weight:400" id="fmn${it.id}"></span></span>
+      <span class="inwrap ingin"><input class="n" data-k="form.forms.${fi}.sh.${it.id}" data-t="pct" inputmode="decimal"><i>% MS</i></span></div>
+      <details class="more"><summary>Custo e composição</summary>
+      <label class="f"><span>Nome</span><input class="n" data-nm="${i}" value="${esc(it.n)}" style="background:var(--card);border-color:var(--line)"></label>
+      ${field('Custo (R$ por tonelada de matéria natural)',`form.ings.${i}.rs`,'rs0','R$/t')}
+      <div class="grid2">${field('Matéria seca (MS)',`form.ings.${i}.ms`,'pct','%')}${field('Proteína bruta (PB)',`form.ings.${i}.pb`,'pct','%')}
+      ${field('Energia (NDT)',`form.ings.${i}.ndt`,'pct','%')}${field('FDN',`form.ings.${i}.fdn`,'pct','%')}${field('FDN fisicamente efetivo',`form.ings.${i}.fdne`,'pct','%')}</div>
+      <p class="mini" id="fcms${it.id}"></p>
+      <button class="conf" data-fdel="${it.id}" type="button" style="color:var(--bad)">Tirar este ingrediente da lista</button></details></div>`};
+  box.innerHTML=`
+    <div class="card">
+      <label class="f" style="margin-top:0"><span>Dieta</span><select class="n" id="fSel">${S.form.forms.map(x=>`<option value="${x.id}" ${x.id===f.id?'selected':''}>${esc(x.n)}</option>`).join('')}</select></label>
+      <div class="btns"><button data-fa="new">Nova (cópia desta)</button><button data-fa="ren">Renomear</button>${S.form.forms.length>1?'<button class="warn" data-fa="del">Apagar</button>':''}</div>
+      <div id="fSlot"></div>
+    </div>
+    <div class="card hero" id="fRes"></div>
+    <h3>Ingredientes desta dieta — % na matéria seca</h3>
+    ${used.map(row).join('')||'<p class="hint">Nenhum ingrediente ainda. Abra “Outros ingredientes” e coloque a porcentagem.</p>'}
+    <details class="grp" ${used.length&&!UI.fGrpOpen?'':'open'}><summary>Outros ingredientes (${other.length})</summary>${other.map(row).join('')}</details>
+    ${UI.fAdd?`<div class="card addc"><b>Novo ingrediente</b>
+      <label class="f"><span>Nome</span><input class="n" id="fa_n" maxlength="40" placeholder="Ex.: Silagem de sorgo" style="background:var(--card);border-color:var(--line)"></label>
+      <label class="f"><span>Custo (R$ por tonelada de matéria natural)</span><div class="inwrap"><input class="n" id="fa_rs" data-lt="rs0" inputmode="decimal"><i>R$/t</i></div></label>
+      <div class="grid2">${[['ms','Matéria seca (MS)'],['pb','Proteína bruta (PB)'],['ndt','Energia (NDT)'],['fdn','FDN'],['fdne','FDN fisicamente efetivo'],['p','Quanto entra nesta dieta']].map(([k,l])=>`<label class="f"><span>${l}</span><div class="inwrap"><input class="n" id="fa_${k}" inputmode="decimal"><i>${k==='p'?'% MS':'%'}</i></div></label>`).join('')}</div>
+      <p class="hint" style="margin:0">“Quanto entra nesta dieta” pode ficar em branco — o ingrediente fica guardado em “Outros ingredientes”.</p>
+      <div class="btns"><button class="pri" data-fa="addok">Adicionar</button><button data-fa="addno">Cancelar</button></div><p class="msg bad" id="faMsg"></p></div>`:
+      '<button class="btn" data-fa="add">+ Adicionar ingrediente</button>'}
+    <p class="hint">Custo, MS, PB, NDT e FDN de cada ingrediente valem para todas as dietas. Valores de composição são exemplos — confira com o seu nutricionista. Para silagem, use o custo já com as perdas.</p>`;
+  fillInputs(box); formCalc();
+}
+function formCalc(){
+  const f=fCur(), el=document.getElementById('fRes'); if(!f||!el)return;
+  const r=fCalc(f), ok=Math.abs(r.sum-1)<=.001;
+  el.innerHTML=`<div class="sum ${ok?'ok':'no'}" style="margin-top:0">Soma: ${pct(r.sum)} ${ok?'— certo':'— tem que dar 100%'}</div>`+
+    kv('Custo por kg de MS',brl(r.cost,2),'good',true)+kv('Custo por tonelada de matéria natural',brl(r.costMN))+
+    kv('Matéria seca da mistura',pct(r.ms))+kv('Proteína bruta (PB)',pct(r.pb))+kv('Energia (NDT)',pct(r.ndt))+kv('FDN',pct(r.fdn))+kv('FDN fisicamente efetivo',pct(r.fdne))+
+    (()=>{const usa=[2,3,1,0].filter(j=>S.dsrc[j]===f.id);
+      return `<div class="usecost">`+(usa.length?`<p class="hint" style="margin:0">Esta dieta é usada em: <b>${usa.map(j=>esc(S.dietas[j].n)).join(', ')}</b> — o custo vai sozinho para a tela Preços (${PNOME[S.praca]}).</p>`:
+        `<p class="hint" style="margin:0">Esta dieta não está ligada a nenhuma dieta do app — é só uma simulação.</p>`)+
+        (UI.fOther?`<label class="f"><span>Usar esta dieta em</span><select class="n" id="fAlvo"><option value="">Escolha…</option>${[2,3,1,0].map(j=>`<option value="${j}">${esc(S.dietas[j].n)}${S.dsrc[j]===f.id?' (já usa)':''}</option>`).join('')}</select></label>`:
+          `<button class="conf" id="fOther" type="button">usar esta dieta em…</button>`)+`<p class="hint" id="fUseMsg" style="margin:4px 0 0"></p></div>`})();
+  S.form.ings.forEach(it=>{const p=f.sh[it.id]||0, ms=it.ms>0?it.ms:1;
+    const m=document.getElementById('fmn'+it.id); if(m)m.textContent=p?`${pct(r.mn?(p/ms)/r.mn:0)} na matéria natural`:`${brl(it.rs)}/t · MS ${pct(it.ms,0)}`;
+    const c=document.getElementById('fcms'+it.id); if(c)c.textContent=`Custo na matéria seca: ${brl(it.rs/ms)}/t MS`});
+}
+// ao sair do campo de %, reorganiza: o que entrou sobe para a dieta, o que ficou em 0 vai para "Outros"
+document.getElementById('t-form').addEventListener('change',e=>{const el=e.target;
+  if(!el.dataset||!/^form\.forms\.\d+\.sh\./.test(el.dataset.k||''))return;
+  setTimeout(()=>{const act=document.activeElement, nk=act&&act.dataset?act.dataset.k:null, g=document.querySelector('#formBox details.grp');
+    UI.fGrpOpen=!!(g&&g.open); const y=window.scrollY; formBuild(); window.scrollTo(0,y);
+    const moved=document.querySelector(`#formBox [data-k="${el.dataset.k}"]`); if(moved){const c=moved.closest('.ingc'); c.classList.add('novo'); setTimeout(()=>c.classList.remove('novo'),1500)}
+    if(nk){const n=document.querySelector(`#formBox [data-k="${nk}"]`); if(n){n.focus(); try{n.select()}catch(_){}}}},0);
 });
-build();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+document.getElementById('t-form').addEventListener('change',e=>{
+  if(e.target.id==='fSel'){S.form.cur=+e.target.value; UI.fOther=false; UI.fGrpOpen=false; touch(); formBuild()}
+  if(e.target.id==='fAlvo'&&e.target.value!==''){const j=+e.target.value; S.dsrc[j]=fCur().id; UI.fOther=false; touch(); buildAj(); refresh(); document.getElementById('fUseMsg').textContent=`Pronto: ${S.dietas[j].n} agora usa esta dieta.`}
+});
+document.getElementById('t-form').addEventListener('input',e=>{const el=e.target;
+  if(el.id==='fa_rs')liveMil(el);
+  if(el.dataset&&el.dataset.nm!==undefined){const it=S.form.ings[+el.dataset.nm]; it.n=el.value; const t=document.getElementById('fnm'+it.id); if(t)t.textContent=el.value; touch()}
+  if(el.dataset&&el.dataset.rn!==undefined){const f=fCur(); f.n=el.value; touch()}
+});
+document.getElementById('t-form').addEventListener('focusout',e=>{if(e.target.dataset&&e.target.dataset.rn!==undefined)formBuild()});
+document.getElementById('t-form').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; const f=fCur();
+  const nextId=arr=>arr.reduce((m,x)=>Math.max(m,x.id),0)+1;
+  if(b.dataset.fa==='new'){const n={id:nextId(S.form.forms),n:f.n+' (cópia)',alvo:f.alvo,sh:Object.assign({},f.sh)}; S.form.forms.push(n); S.form.cur=n.id; touch(); formBuild(); return}
+  if(b.dataset.fa==='ren'){document.getElementById('fSlot').innerHTML=`<label class="f"><span>Novo nome</span><input class="n" data-rn="1" maxlength="60" value="${esc(f.n)}" style="background:var(--card);border-color:var(--line)"></label>`; document.querySelector('[data-rn]').focus(); return}
+  if(b.dataset.fa==='del'){if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Confirmar apagar';return}
+    [0,1,2,3].forEach(j=>{if(S.dsrc[j]===f.id){S.dcost[j]=Math.round(fCalc(f).cost*100)/100; S.dsrc[j]=null}});
+    S.form.forms=S.form.forms.filter(x=>x.id!==f.id); S.form.cur=S.form.forms[0].id; touch(); formBuild(); buildAj(); refresh(); return}
+  if(b.dataset.fa==='add'){UI.fAdd=true; formBuild(); const n=document.getElementById('fa_n'); n.scrollIntoView({block:'center'}); n.focus(); return}
+  if(b.dataset.fa==='addno'){UI.fAdd=false; formBuild(); return}
+  if(b.dataset.fa==='addok'){const g=k=>parseNum(document.getElementById('fa_'+k).value), nm=document.getElementById('fa_n').value.trim();
+    const ms=g('ms'); if(!nm){document.getElementById('faMsg').textContent='Coloque o nome do ingrediente.';return}
+    if(!(ms>0)){document.getElementById('faMsg').textContent='Coloque a matéria seca (MS) — sem ela não dá para calcular o custo na MS.';return}
+    const v=k=>{const x=g(k); return isNaN(x)?0:x/100}, id=nextId(S.form.ings);
+    S.form.ings.push({id,n:nm,rs:isNaN(g('rs'))?0:g('rs'),ms:ms/100,pb:v('pb'),ndt:v('ndt'),fdn:v('fdn'),fdne:v('fdne')});
+    const pc=v('p'); if(pc>0)f.sh[id]=pc;
+    UI.fAdd=false; touch(); formBuild(); refresh();
+    const t=document.getElementById('fnm'+id); if(t){const c=t.closest('.ingc'); const gr=t.closest('details.grp'); if(gr)gr.open=true; c.classList.add('novo'); c.scrollIntoView({block:'center'})}
+    return}
+  if(b.dataset.fdel){if(b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='Confirmar: tirar da lista (sai de todas as dietas)';return}
+    const id=+b.dataset.fdel; S.form.ings=S.form.ings.filter(x=>x.id!==id); S.form.forms.forEach(x=>delete x.sh[id]); touch(); formBuild(); return}
+  if(b.id==='fOther'){UI.fOther=true; saveLocal(); formCalc(); return}
+  if(b.id==='fUse'){const j=isN(f.alvo)?f.alvo:2, r=fCalc(f), v=Math.round(r.cost*100)/100;
+    if(Math.abs(r.sum-1)>.001&&b.dataset.ok!=='1'){b.dataset.ok='1';b.textContent='A soma não dá 100% — toque de novo para usar mesmo assim';return}
+    S.dcost[j]=v; touch(); refresh(); document.getElementById('fUseMsg').textContent=`Pronto: ${S.dietas[j].n} agora usa ${brl(v,2)}/kg MS. A tela Decidir já foi recalculada.`; return}
+});
+
+// ---------------- EXPORTAR PARA O LOTE OFFLINE ----------------
+function offExport(){
+  const st=clone(stateOnly(S)); syncLinks(st);
+  const mk=s=>{const m=calc(s); return {cats:s.cats.map(c=>({cu:c.cu,venda:c.venda,bp:c.bez?c.bez.preco:null})),dcost:m.D.map(d=>Math.round(d.rs/10)/100),base:s.fut.base}};
+  const cur=mk(clone(st)), oth=S.praca==='GO'?'SP':'GO';
+  let o2; if(S.reg[oth]){const s2=clone(st); regApply(s2,S.reg[oth]); syncLinks(s2); o2=mk(s2)} else o2=Object.assign(clone(cur),{base:oth==='SP'?0:10});
+  const out={v:1,at:Date.now(),praca:S.praca,dietas:S.dietas.map(d=>d.n),
+    cats:st.cats.map(c=>{const x={n:c.n,d:c.d,un:c.un,cons:c.cons,p0:c.p0,pf:c.pf,gmd:c.gmd,re:c.re,rs:c.rs,mort:c.mort}; if(c.bez)x.bez={p0:c.bez.p0,gmd:c.bez.gmd,cons:c.bez.cons}; return x}),
+    pracas:{[S.praca]:cur,[oth]:o2},fixo:S.gen.fixo,mm:S.gen.mm,loteCfg:clone(S.loteCfg),fut:{preco:S.fut.preco,custo:S.fut.custo,desc:S.fut.desc.slice()}};
+  return 'LOTE1:'+btoa(unescape(encodeURIComponent(JSON.stringify(out))));
+}
+document.getElementById('t-lote').addEventListener('click',async e=>{
+  if(e.target.id==='offGen'){const code=offExport();
+    document.getElementById('offOut').innerHTML=`<button class="btn pri" id="offCopy" style="margin:8px 0 0">Copiar código</button><p class="hint" id="offMsg" style="margin:4px 0 0"></p>
+      <p class="hint" style="margin:10px 0 4px">Se o botão não copiar: toque na caixa abaixo, segure, escolha <b>“Selecionar tudo”</b> e depois <b>“Copiar”</b>.</p>
+      <textarea class="n" id="offTxt" rows="4" spellcheck="false" autocorrect="off" autocapitalize="off" style="background:var(--card);border-color:var(--line);font-size:12px;width:100%;word-break:break-all">${code}</textarea>
+      <p class="mini">O código começa com <b>LOTE1:</b> e tem ${code.length} caracteres.</p>`;
+    return}
+  if(e.target.id==='offCopy'){const ta=document.getElementById('offTxt'), msg=document.getElementById('offMsg');
+    try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw 0; await navigator.clipboard.writeText(ta.value); msg.textContent='Copiado! Agora abra o Lote offline e cole em “Ajustes e dados do app”.'}
+    catch(_){ta.focus(); ta.select(); try{ta.setSelectionRange(0,ta.value.length)}catch(__){} let ok=false; try{ok=document.execCommand('copy')}catch(__){}
+      msg.textContent=ok?'Copiado! Agora abra o Lote offline e cole em “Ajustes e dados do app”.':'Não consegui copiar sozinho. Use a caixa abaixo: toque, segure, “Selecionar tudo” e “Copiar”.'}}
+});
+// ---------------- NAVEGAÇÃO ----------------
+const TABS=['inv','pre','sim','cfg','lote','form'], SUBS=['cat','ger','aju'];
+let prevTab='inv';
+function showTab(t){if(!TABS.includes(t))t='inv'; if(t!=='cfg')prevTab=t; if(t==='lote'){loteBuild(); loteCalc()} if(t==='form')formBuild(); UI.tab=t; TABS.forEach(x=>document.getElementById('t-'+x).classList.toggle('hide',x!==t));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===t)); if(t!=='sim')SIMMSG=''; saveLocal(); window.scrollTo(0,0)}
+function showSub(s){if(!SUBS.includes(s))s='cat'; UI.sub=s; SUBS.forEach(x=>document.getElementById('cf-'+x).classList.toggle('hide',x!==s));
+  document.querySelectorAll('#subCfg button').forEach(b=>b.classList.toggle('on',b.dataset.v===s));saveLocal()}
+document.getElementById('nav').onclick=e=>{const b=e.target.closest('button'); if(b)showTab(b.dataset.v)};
+document.getElementById('subCfg').onclick=e=>{const b=e.target.closest('button'); if(b)showSub(b.dataset.v)};
+document.getElementById('btnCfg').onclick=()=>showTab('cfg');
+document.getElementById('t-pre').addEventListener('change',e=>{const el=e.target; if(!el.dataset||el.dataset.dsrc===undefined)return; const j=+el.dataset.dsrc;
+  if(el.value==='man'){S.dcost[j]=Math.round(M.D[j].rs/10)/100; S.dsrc[j]=null} else S.dsrc[j]=+el.value;
+  touch(); preDieBuild(); refresh()});
+document.getElementById('segPraca').onclick=e=>{const b=e.target.closest('button'); if(b)setPraca(b.dataset.v)};
+document.getElementById('t-pre').addEventListener('click',e=>{const b=e.target.closest('[data-conf]'); if(!b)return; const [t,k]=b.dataset.conf.split(':');
+  S.pd[t][+k]={at:Date.now(),by:UID||null}; touch(); refresh()});
+document.getElementById('guideOk').onclick=()=>{UI.guideDone=true;saveLocal();document.getElementById('guide').classList.add('hide')};
+const tip=document.getElementById('tip');
+document.addEventListener('click',e=>{
+  const q=e.target.closest&&e.target.closest('.q');
+  if(q){e.preventDefault();e.stopPropagation();tip.textContent=TIPS[q.dataset.q]||'';tip.classList.remove('hide');return}
+  if(!tip.classList.contains('hide'))tip.classList.add('hide');
+  const go=e.target.closest&&e.target.closest('[data-go]'); if(go){e.preventDefault();showTab(go.dataset.go)}
+},true);
+document.getElementById('btnBack').onclick=()=>showTab(prevTab);
+
+const EMB={"area": 2, "at": 1794646101303, "cats": [{"bez": {"cons": 1.5, "gmd": 1, "p0": 80, "preco": 16}, "cons": 0.023, "cu": 6000, "d": 3, "gmd": 1.1, "mort": 0.005, "n": "Vaca parida + bezerro", "p0": 390, "pf": 510, "re": 0.5, "rs": 0.5, "un": "cab", "venda": 370}, {"cons": 0.025, "cu": 20, "d": 1, "gmd": 1, "mort": 0.005, "n": "Recria macho c/ volumoso", "p0": 200, "pf": 360, "re": 0.5, "rs": 0.5, "un": "kg", "venda": 450}, {"cons": 0.018, "cu": 20, "d": 0, "gmd": 1, "link": true, "mort": 0.005, "n": "Recria macho s/ volumoso", "p0": 200, "pf": 360, "re": 0.5, "rs": 0.5, "src": 1, "un": "kg", "venda": 450}, {"cons": 0.025, "cu": 16, "d": 1, "gmd": 1, "mort": 0.005, "n": "Recria fêmea c/ volumoso", "p0": 180, "pf": 300, "re": 0.5, "rs": 0.5, "un": "kg", "venda": 420}, {"cons": 0.018, "cu": 16, "d": 0, "gmd": 1, "link": true, "mort": 0.005, "n": "Recria fêmea s/ volumoso", "p0": 180, "pf": 300, "re": 0.5, "rs": 0.5, "src": 3, "un": "kg", "venda": 420}, {"cons": 0.023, "cu": 440, "d": 2, "gmd": 1.6, "mort": 0.005, "n": "Boi", "p0": 400, "pf": 570, "re": 0.5, "rs": 0.54, "un": "arroba", "venda": 385}, {"cons": 0.023, "cu": 390, "d": 2, "gmd": 1.35, "mort": 0.005, "n": "Novilha", "p0": 320, "pf": 430, "re": 0.5, "rs": 0.51, "un": "arroba", "venda": 390}, {"cons": 0.023, "cu": 350, "d": 2, "gmd": 1.2, "mort": 0.005, "n": "Vaca solteira", "p0": 400, "pf": 510, "re": 0.5, "rs": 0.5, "un": "arroba", "venda": 370}], "dcost": [1.36, 1.06, 1.15, 1.15], "dietas": [{"n": "Recria sem volumoso", "ov": 0, "sh": [0.446, 0, 0.284, 0, 0, 0.1, 0.15, 0, 0.02, 0], "vol": 0, "vp": 0}, {"n": "Recria com volumoso", "ov": 0, "sh": [0.09, 0, 0.44, 0, 0, 0, 0, 0, 0.02, 0], "vol": 0, "vp": 0.45}, {"n": "Terminação", "ov": 0, "sh": [0.67, 0, 0, 0, 0, 0, 0.115, 0.015, 0.02, 0], "vol": 0, "vp": 0.18}, {"n": "Vaca parida", "ov": 0, "sh": [0.67, 0, 0, 0, 0, 0, 0.115, 0.015, 0.02, 0], "vol": 0, "vp": 0.18}], "dsrc": [3, 2, 1, 1], "form": {"cur": 1, "forms": [{"alvo": 2, "id": 1, "n": "Terminação", "sh": {"1": 0.67, "7": 0.115, "8": 0.015, "9": 0.02, "10": 0, "11": 0, "12": 0.18, "14": 0}}, {"alvo": 1, "id": 2, "n": "Recria com volumoso", "sh": {"1": 0.09, "3": 0.44, "9": 0.02, "11": 0, "12": 0.45}}, {"alvo": 0, "id": 3, "n": "Recria sem volumoso", "sh": {"1": 0.446, "3": 0.284, "6": 0.1, "7": 0.15, "9": 0.02}}], "ings": [{"fdn": 0.14, "fdne": 0.03, "id": 1, "ms": 0.87, "n": "Milho fubá", "ndt": 0.86, "pb": 0.08, "rs": 1000}, {"fdn": 0.12, "fdne": 0.03, "id": 2, "ms": 0.88, "n": "Sorgo grão", "ndt": 0.8, "pb": 0.09, "rs": 850}, {"fdn": 0.35, "fdne": 0.04, "id": 3, "ms": 0.9, "n": "DDG", "ndt": 0.88, "pb": 0.34, "rs": 1400}, {"fdn": 0.14, "fdne": 0.03, "id": 4, "ms": 0.89, "n": "Farelo de soja", "ndt": 0.82, "pb": 0.48, "rs": 2200}, {"fdn": 0.35, "fdne": 0.1, "id": 5, "ms": 0.9, "n": "Farelo de algodão 38%", "ndt": 0.68, "pb": 0.38, "rs": 1200}, {"fdn": 0.4, "fdne": 0.15, "id": 6, "ms": 0.92, "n": "Torta de algodão", "ndt": 0.72, "pb": 0.28, "rs": 1150}, {"fdn": 0.47, "fdne": 0.44, "id": 7, "ms": 0.91, "n": "Caroço de algodão", "ndt": 0.9, "pb": 0.22, "rs": 1250}, {"fdn": 0, "fdne": 0, "id": 8, "ms": 0.99, "n": "Uréia", "ndt": 0, "pb": 2.81, "rs": 4000}, {"fdn": 0, "fdne": 0, "id": 9, "ms": 0.98, "n": "Núcleo mineral", "ndt": 0, "pb": 0, "rs": 3500}, {"fdn": 0.85, "fdne": 0.75, "id": 10, "ms": 0.5, "n": "Bagaço de cana", "ndt": 0.42, "pb": 0.02, "rs": 250}, {"fdn": 0.7, "fdne": 0.6, "id": 11, "ms": 0.2, "n": "Silagem de capiaçu (com perdas)", "ndt": 0.37, "pb": 0.055, "rs": 87.5}, {"fdn": 0.45, "fdne": 0.38, "id": 12, "ms": 0.33, "n": "Silagem de milho (com perdas)", "ndt": 0.63, "pb": 0.08, "rs": 250}, {"fdn": 0.58, "fdne": 0.46, "id": 14, "ms": 0.3, "n": "Silagem de Sorgo", "ndt": 0.55, "pb": 0.065, "rs": 300}]}, "fut": {"base": 10, "custo": 5, "desc": [30, 0, 0, 0, 0, 0, 15, 30], "preco": 402}, "gen": {"capA": 160, "capF": 1000, "fixo": 2, "mm": 0.02}, "ins": [{"fdn": 0.14, "ms": 0.87, "n": "Milho fubá", "ndt": 0.86, "pb": 0.08, "rs": 1000}, {"fdn": 0.12, "ms": 0.88, "n": "Sorgo grão", "ndt": 0.8, "pb": 0.09, "rs": 850}, {"fdn": 0.35, "ms": 0.9, "n": "DDG", "ndt": 0.88, "pb": 0.34, "rs": 1400}, {"fdn": 0.14, "ms": 0.89, "n": "Farelo de soja", "ndt": 0.82, "pb": 0.48, "rs": 2200}, {"fdn": 0.35, "ms": 0.9, "n": "Farelo de algodão 38%", "ndt": 0.68, "pb": 0.38, "rs": 1200}, {"fdn": 0.4, "ms": 0.92, "n": "Torta de algodão", "ndt": 0.72, "pb": 0.28, "rs": 1150}, {"fdn": 0.47, "ms": 0.91, "n": "Caroço de algodão", "ndt": 0.8, "pb": 0.22, "rs": 1250}, {"fdn": 0, "ms": 0.99, "n": "Uréia", "ndt": 0, "pb": 2.81, "rs": 4000}, {"fdn": 0, "ms": 0.98, "n": "Núcleo mineral", "ndt": 0, "pb": 0, "rs": 3500}, {"fdn": 0.85, "ms": 0.5, "n": "Bagaço de cana", "ndt": 0.42, "pb": 0.02, "rs": 250}], "inv": {"apl": 0.12, "cap": "FUTURA", "sim": [true, true, true, true, true, true, true, true], "valor": 3000000}, "loteCfg": {"direto": {"com": 0, "frete": 60}, "leilao": {"com": 0.02, "frete": 60}}, "pAt": 0, "pBy": null, "pd": {"cat": [{"at": 1794518349757, "by": "u_uljGGTQJWwM53ponSjQl8g"}, {"at": 1793433845525, "by": "u_uljGGTQJWwM53ponSjQl8g"}, null, {"at": 1794518382824, "by": "u_uljGGTQJWwM53ponSjQl8g"}, null, {"at": 1794518402594, "by": "u_uljGGTQJWwM53ponSjQl8g"}, {"at": 1794153715561, "by": "u_uljGGTQJWwM53ponSjQl8g"}, {"at": 1794518424129, "by": "u_uljGGTQJWwM53ponSjQl8g"}], "ins": [null, null, null, null, null, null, null, null, null, null]}, "praca": "GO", "reg": {"SP": {"base": 0, "cats": [{"bp": 16, "cu": 6200, "venda": 370}, {"bp": null, "cu": 20, "venda": 450}, {"bp": null, "cu": 20, "venda": 450}, {"bp": null, "cu": 16, "venda": 420}, {"bp": null, "cu": 16, "venda": 420}, {"bp": null, "cu": 450, "venda": 380}, {"bp": null, "cu": 400, "venda": 380}, {"bp": null, "cu": 350, "venda": 360}], "dcost": [1.45, 1.3, 1.3, 1.3], "dsrc": [3, 2, 1, 1], "fcur": 2, "forms": [{"alvo": 2, "id": 1, "n": "Terminação", "sh": {"1": 0.67, "7": 0.115, "8": 0.015, "9": 0.02, "10": 0, "11": 0, "14": 0.18}}, {"alvo": 1, "id": 2, "n": "Recria com volumoso", "sh": {"1": 0.09, "3": 0.44, "9": 0.02, "11": 0, "14": 0.45}}, {"alvo": 0, "id": 3, "n": "Recria sem volumoso", "sh": {"1": 0.446, "3": 0.284, "6": 0.1, "7": 0.15, "9": 0.02}}], "ing": {"1": 1150, "2": 915, "3": 1400, "4": 2200, "5": 1290, "6": 1150, "7": 1330, "8": 4000, "9": 3500, "10": 250, "11": 87.5, "12": 350, "14": 250}, "pd": [{"at": 1794645848377, "by": "u_uljGGTQJWwM53ponSjQl8g"}, null, null, {"at": 1794645904320, "by": "u_uljGGTQJWwM53ponSjQl8g"}, null, {"at": 1794645939617, "by": "u_uljGGTQJWwM53ponSjQl8g"}, {"at": 1794645961550, "by": "u_uljGGTQJWwM53ponSjQl8g"}, null]}}, "vols": [{"ap": 0, "bp": 0, "fdn": 0.7, "inoc": 0, "ms": 0.2, "n": "Capiaçu puro", "ndt": 0.37, "orig": "ÁREA", "part": 1, "pb": 0.055, "perd": 0.2, "prod": 250, "rs": 0.07}, {"ap": 0.1, "bp": 0, "fdn": 0.7, "inoc": 0, "ms": 0.2, "n": "Capiaçu + milho grão", "ndt": 0.37, "orig": "ÁREA", "part": 0.9, "pb": 0.055, "perd": 0.12, "prod": 250, "rs": 0.07}, {"ap": 0, "bp": 0.2, "fdn": 0.7, "inoc": 5, "ms": 0.2, "n": "Capiaçu + bagaço", "ndt": 0.37, "orig": "ÁREA", "part": 0.8, "pb": 0.055, "perd": 0.12, "prod": 250, "rs": 0.07}, {"ap": 0.1, "bp": 0, "fdn": 0.7, "inoc": 0, "ms": 0.22, "n": "Mombaça + milho grão", "ndt": 0.5, "orig": "ÁREA", "part": 0.9, "pb": 0.08, "perd": 0.12, "prod": 60, "rs": 0.07}, {"ap": 0, "bp": 0, "fdn": 0.45, "inoc": 0, "ms": 0.33, "n": "Silagem de milho", "ndt": 0.63, "orig": "ÁREA", "part": 1, "pb": 0.08, "perd": 0.12, "prod": 70, "rs": 0.25}, {"ap": 0, "bag": true, "bp": 0, "inoc": 0, "n": "Bagaço de cana", "orig": "COMPRADO", "part": 1, "perd": 0.05, "prod": 0}]};
+function loadState(){let o=null; try{const raw=localStorage.getItem(KEY); if(raw)o=JSON.parse(raw)}catch(e){}
+  if(!o||(EMB.at>(o.at||0))){const ui=(o&&o.ui)||{guideDone:true,tab:'lote'}; o=Object.assign(JSON.parse(JSON.stringify(EMB)),{ui})}
+  S=normalize(o); if(o&&!Array.isArray(o.dsrc))S.dsrc=DEF.dsrc.slice(); UI=Object.assign({},DEF_UI,(o&&o.ui)||{}); syncLinks(S)}
+loadState();
+buildAj(); refresh(); showTab(UI.tab==='cfg'?'inv':UI.tab); showSub(UI.sub);
+initAccount();
+window.__calc=()=>calc(S); window.__S=()=>S;
 })();
 </script>
+
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 </body></html>
