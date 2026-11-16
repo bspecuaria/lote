@@ -300,13 +300,13 @@ header.top .praca{margin-top:0}
 
   <!-- AVALIAR LOTE -->
   <section id="t-lote" class="hide">
-    <h2>Avaliar um lote</h2>
+    <h2>Avaliar uma compra</h2>
     <p class="hint">Viu um lote no leilão ou recebeu uma oferta? Coloque peso e preço e veja se vale a pena. Não muda os seus dados.</p>
     <div class="card" id="loteForm"></div>
     <div class="card" id="loteRes"></div>
-    <details class="it hide" id="offBox"><summary><span class="nm">Lote offline (sem internet)</span><span class="sm">instalado</span></summary><div class="body">
-      <p class="hint">O <b>Lote offline</b> já está com os seus números de Goiás e São Paulo e funciona sem internet. Endereço: <a href="https://bspecuaria.github.io/lote/" target="_blank" rel="noopener" style="color:var(--brand2);font-weight:700">bspecuaria.github.io/lote</a></p>
-      <p class="hint"><b>Para atualizar os números dele</b> (quando mudar preços, custos ou pesos aqui): peça ao Claude “atualiza o Lote offline”. Ele manda um index.html novo para você subir no GitHub. Lá dentro você também pode mudar venda, custo da dieta, comissão e frete na hora.</p>
+    <details class="it hide" id="offBox"><summary><span class="nm">App offline (sem internet)</span><span class="sm">instalado</span></summary><div class="body">
+      <p class="hint">O <b>app offline</b> (ícone BS Pecuária) já está com os seus números de Goiás e São Paulo e funciona sem internet. Endereço: <a href="https://bspecuaria.github.io/lote/" target="_blank" rel="noopener" style="color:var(--brand2);font-weight:700">bspecuaria.github.io/lote</a></p>
+      <p class="hint"><b>Para atualizar os números dele</b> (quando mudar preços, custos ou pesos aqui): peça ao Claude “atualiza o app offline”. Ele manda um index.html novo para você subir no GitHub. Lá dentro você também pode mudar venda, custo da dieta, comissão e frete na hora.</p>
       <details class="more"><summary>Outra forma: código para colar</summary>
       <button class="btn" id="offGen" style="margin-top:4px">Gerar código</button>
       <div id="offOut"></div></details></div></details>
@@ -337,7 +337,7 @@ header.top .praca{margin-top:0}
 <div id="tip" class="tip hide" role="status"></div>
 <nav class="bot" id="nav">
   <button data-v="inv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.2c-.6-.8-1.7-1.2-3-1.2-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.3 0-2.4-.5-3-1.3M12 6.5V8M12 16v1.5"/></svg>Decidir</button>
-  <button data-v="lote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h2M12 19h2M16 15v4"/></svg>Lote</button>
+  <button data-v="lote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 19h2M12 19h2M16 15v4"/></svg>Compra</button>
   <button data-v="form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-2 2-2 2-4M12 7c0-2 2-2 2-4M16 7c0-2 2-2 2-4"/></svg>Dieta</button>
   <button data-v="pre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>Preços</button>
   <button data-v="mais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Mais</button>
@@ -643,7 +643,7 @@ function buildAj(){
     <li><b>Decidir</b>: digite quanto tem para investir e veja a melhor opção e as categorias da melhor para a pior.</li>
     <li><b>Salvas</b>: dê um nome e salve a simulação para a família ver e comparar.</li>
     <li><b>Dieta</b>: monte uma dieta na MS, veja PB, NDT, FDN e o custo por kg de MS e mande esse custo para a tela Preços.</li>
-    <li><b>Lote</b>: avalie um lote do leilão — peso, preço e, se quiser, pelo mercado futuro.</li>
+    <li><b>Compra</b>: avalie uma compra no leilão ou direto com o produtor — peso, preço e, se quiser, pelo mercado futuro.</li>
     <li><b>Configurações</b> (engrenagem): pesos, ganho, consumo e custo fixo — mexa só quando mudar.</li></ol></div>
     <div class="card"><h3 style="margin-top:0">Forma de compra</h3>
     <div class="kv"><span>Recria (macho e fêmea)</span><b>R$ por kg vivo</b></div><div class="kv"><span>Boi, novilha, vaca solteira</span><b>R$ por @ (peso ÷ 30)</b></div>
@@ -1193,9 +1193,9 @@ document.getElementById('t-lote').addEventListener('click',async e=>{
       <p class="mini">O código começa com <b>LOTE1:</b> e tem ${code.length} caracteres.</p>`;
     return}
   if(e.target.id==='offCopy'){const ta=document.getElementById('offTxt'), msg=document.getElementById('offMsg');
-    try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw 0; await navigator.clipboard.writeText(ta.value); msg.textContent='Copiado! Agora abra o Lote offline e cole em “Ajustes e dados do app”.'}
+    try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw 0; await navigator.clipboard.writeText(ta.value); msg.textContent='Copiado! Agora abra o app offline e cole em “Ajustes e dados do app”.'}
     catch(_){ta.focus(); ta.select(); try{ta.setSelectionRange(0,ta.value.length)}catch(__){} let ok=false; try{ok=document.execCommand('copy')}catch(__){}
-      msg.textContent=ok?'Copiado! Agora abra o Lote offline e cole em “Ajustes e dados do app”.':'Não consegui copiar sozinho. Use a caixa abaixo: toque, segure, “Selecionar tudo” e “Copiar”.'}}
+      msg.textContent=ok?'Copiado! Agora abra o app offline e cole em “Ajustes e dados do app”.':'Não consegui copiar sozinho. Use a caixa abaixo: toque, segure, “Selecionar tudo” e “Copiar”.'}}
 });
 // ---------------- NAVEGAÇÃO ----------------
 const TABS=['inv','pre','sim','cfg','lote','form','mais'], SUBS=['cat','ger','aju'];
