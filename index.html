@@ -965,6 +965,7 @@ function loteBuild(){
       <p class="hint" style="margin:0">Base, custo da trava e desconto ficam guardados — só a cotação você muda todo dia.</p>`}
     <p class="hint" style="margin:6px 0 0">${isFut?'':'Venda e peso de saída vêm do app — mude se quiser. '}Nada disso altera os seus dados, só o botão no fim.</p>`;
   loteCfRender();
+  {[['lt_p0','ltP0Arr'],['lt_pf','ltPfArr']].concat(c.un==='kg'?[['lt_venda','ltVendaKg']]:[]).forEach(([i,id])=>{const el=document.getElementById(i); if(el){const sp=document.createElement('span'); sp.className='mini cab'; sp.id=id; el.closest('.inwrap').after(sp)}})}
   {const cu=document.getElementById(leil?'lt_lance':'lt_cu'); if(cu&&c.un!=='cab'){const sp=document.createElement('span'); sp.className='mini cab'; sp.id='ltCuCab'; cu.closest('.inwrap').after(sp)}}
 }
 function loteCfRender(){const el=document.getElementById('ltCf'); if(!el)return; const L=UI.lote, cf=S.loteCfg[L.onde||'leilao'];
@@ -999,7 +1000,14 @@ function loteDemo(c,r,g,qt,X){
 }
 function loteCalc(){
   const leil=UI.lote.onde!=='direto', cf=S.loteCfg[leil?'leilao':'direto'], base=leil?UI.lote.lance:UI.lote.cu*loteFc(UI.lote);
-  {const el=document.getElementById('ltCuCab'), c0=S.cats[UI.lote.k]; if(el){const fc=loteFc(UI.lote); el.innerHTML=!(isN(base)&&fc>0)?'':leil?`= ${brl(base/fc,2)}${UNS[c0.un]}`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')+(cf.com?`<br>com comissão: <b>${brl(base*(1+cf.com)/fc,2)}${UNS[c0.un]}</b>`:''):`= ${brl(base)} por cabeça`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')}}
+  {const el=document.getElementById('ltCuCab'), c0=S.cats[UI.lote.k]; if(el){const fc=loteFc(UI.lote);
+    if(!(isN(base)&&fc>0))el.innerHTML='';
+    else if(c0.un==='kg'){const tot=(base*(1+cf.com)+cf.frete)/fc; el.innerHTML=(leil?`= ${brl(base/fc,2)}/kg`:`= ${brl(base)} por cabeça`)+(cf.com||cf.frete?`<br>com comissão e frete: <b>${brl(tot,2)}/kg</b>`:'')}
+    else el.innerHTML=leil?`= ${brl(base/fc,2)}${UNS[c0.un]}`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')+(cf.com?`<br>com comissão: <b>${brl(base*(1+cf.com)/fc,2)}${UNS[c0.un]}</b>`:''):`= ${brl(base)} por cabeça`+(c0.un==='arroba'?` (${num(fc,1)} @)`:'')}
+    const c1=S.cats[UI.lote.k], sp0=document.getElementById('ltP0Arr'), spf=document.getElementById('ltPfArr'), spv=document.getElementById('ltVendaKg');
+    if(sp0)sp0.textContent=isN(UI.lote.p0)?`= ${num(UI.lote.p0*c1.re/15,1)} @ (rend. ${pct(c1.re,0)})`:'';
+    if(spf)spf.textContent=isN(UI.lote.pf)?`= ${num(UI.lote.pf*c1.rs/15,1)} @ (rend. ${pct(c1.rs,0)})`:'';
+    if(spv)spv.textContent=isN(UI.lote.venda)?`= ${brl(UI.lote.venda*c1.rs/15,2)}/kg vivo`:'';}
   const L=UI.lote, k=L.k, isFut=L.modo==='fut'&&FUT_CATS.includes(k); const T=clone(stateOnly(S)); const c=T.cats[k];
   const vend=isFut?futVenda(k):L.venda;
   c.p0=L.p0; c.venda=vend; c.pf=L.pf; if('src' in c)c.link=false;
