@@ -441,16 +441,19 @@ function normalize0(o){
 const PNOME={GO:'Goiás',SP:'São Paulo'};
 // a praça ativa vive nos campos normais; a outra fica guardada em S.reg
 function regExtract(s){return {cats:s.cats.map(c=>({cu:c.cu,venda:c.venda,bp:c.bez?c.bez.preco:null})),dcost:s.dcost.slice(),pd:JSON.parse(JSON.stringify(s.pd.cat)),
-  ing:Object.fromEntries(s.form.ings.map(x=>[x.id,x.rs])),base:s.fut.base,forms:JSON.parse(JSON.stringify(s.form.forms)),fcur:s.form.cur,dsrc:s.dsrc.slice()}}
+  ing:Object.fromEntries(s.form.ings.map(x=>[x.id,x.rs])),base:s.fut.base,forms:JSON.parse(JSON.stringify(s.form.forms)),fcur:s.form.cur,dsrc:s.dsrc.slice(),loteCfg:JSON.parse(JSON.stringify(s.loteCfg))}}
 function regApply(s,r){r.cats.forEach((x,k)=>{const c=s.cats[k]; if(!c||!x)return; if(isN(x.cu))c.cu=x.cu; if(isN(x.venda))c.venda=x.venda; if(c.bez&&isN(x.bp))c.bez.preco=x.bp});
   r.dcost.forEach((v,j)=>{if(isN(v)&&j<4)s.dcost[j]=v}); if(Array.isArray(r.pd))r.pd.forEach((e,k)=>{if(k<8)s.pd.cat[k]=e&&isN(e.at)?e:null});
   if(r.ing)s.form.ings.forEach(x=>{if(isN(r.ing[x.id]))x.rs=r.ing[x.id]}); if(isN(r.base))s.fut.base=r.base;
   if(Array.isArray(r.forms)&&r.forms.length){s.form.forms=JSON.parse(JSON.stringify(r.forms)).filter(x=>x&&isN(x.id)).map(x=>({id:x.id,n:typeof x.n==='string'?x.n:'Dieta',alvo:x.alvo,sh:x.sh&&typeof x.sh==='object'?x.sh:{}})); s.form.cur=isN(r.fcur)?r.fcur:s.form.forms[0].id}
+  if(r.loteCfg)['leilao','direto'].forEach(m=>{const x=r.loteCfg[m]; if(x){if(isN(x.com))s.loteCfg[m].com=x.com; if(isN(x.frete))s.loteCfg[m].frete=x.frete}});
   if(Array.isArray(r.dsrc)&&r.dsrc.length===4)s.dsrc=r.dsrc.map(v=>isN(v)&&s.form.forms.some(f=>f.id===v)?v:null)}
 function setPraca(p){if(p===S.praca)return; const old=S.praca, cur=regExtract(S);
   const nxt=S.reg[p]||Object.assign(JSON.parse(JSON.stringify(cur)),{base:p==='SP'?0:10,pd:cur.pd.map(()=>null)});
   S.reg[old]=cur; regApply(S,nxt); delete S.reg[p]; S.praca=p; syncLinks(S);
-  if(UI.lote)loteFill(UI.lote.k); touch(); saveLocal(); buildAj(); refresh(); if(UI.tab==='form')formBuild(); if(UI.tab==='lote'){loteBuild(); loteCalc()}}
+  if(UI.lote){UI.loteBy=UI.loteBy||{}; UI.loteBy[old]=JSON.parse(JSON.stringify(UI.lote)); // cada praça guarda a última simulação de compra
+    UI.lote=UI.loteBy[p]?JSON.parse(JSON.stringify(UI.loteBy[p])):Object.assign(JSON.parse(JSON.stringify(UI.lote)),{dcEdit:false})}
+  touch(); saveLocal(); buildAj(); refresh(); if(UI.tab==='form')formBuild(); if(UI.tab==='lote'){loteBuild(); loteCalc()}}
 function stateOnly(s){const o=clone(s); delete o.ui; return o}
 function syncLinks(s){s.cats.forEach(c=>{if(c.link&&isN(c.src)){const f=s.cats[c.src]; LINKF.forEach(k=>c[k]=f[k])}})}
 
